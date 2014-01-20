@@ -4,6 +4,10 @@ var $a = function(el) {return angular.element($(el));};
 var $s = function(el) {return $a('html').scope();};
 var $i = function(el) {return $a('html').scope().$item();};
 
+var contextMenuCallback = function() {
+	console.debug('context menu callback');
+}
+
 var $$item = function(opts) {
   var $opts = opts || {}, $rootScope = angular.element($('html')).scope(),
       $item_class = function(opts, prop) {
@@ -54,6 +58,13 @@ var $$item = function(opts) {
 };
 
 var $directive = function($type, $childs) {
+	$.contextMenu({
+		selector: 'div[' + $type + ']',
+		items: $.contextMenu.fromMenu('menu#' + $type),
+		callback: function() {
+			console.debug('context menu callback');
+		}
+	});
   return function($compile, $templateCache) {
     var def = {};
 
@@ -69,18 +80,18 @@ var $directive = function($type, $childs) {
   }
 };
 
-angular.module('skuapso', [])
-.run(function($http, $rootScope, $templateCache, $filter) {
+angular.module('skuapso', ["leaflet-directive"])
+.run(function($http, $rootScope, $templateCache, $filter, leafletData) {
   var $preload = function(file) {
-    var $file = '/static/' + file + '.html';
+    var $file = '/static/tmpl' + file + '.html';
     $http.get($file, {cache: $templateCache})
     .success(function(data) {
       $templateCache.put($file, data);
     });
   };
-  $preload('owner');
-  $preload('group');
-  $preload('object');
+//  $preload('owner');
+//  $preload('group');
+//  $preload('object');
   function check_dest(arr, el) {
     if (arr.length == 0) return null;
     var p = arr.shift();
@@ -150,12 +161,12 @@ angular.module('skuapso', [])
       id: 1234,
       no: 'test',
       model_id: 1,
-      group_id: 150,
+      group_id: 146,
       type: 'object'
     });
   };
   $rootScope.rename = function() {
-    this.$item('object', 1).model_id=2;
+    this.$item('object', 1234).model_id=2;
     angular.element($rootScope.$($item.parent)).scope().$digest();
   }
 
@@ -167,6 +178,10 @@ angular.module('skuapso', [])
     for (i in $rootScope.$scopes) {
       $rootScope.$scopes[i] = $filter('orderBy')($rootScope.$scopes[i], 'title');
     }
+		leafletData.getMap().then(function(map) {
+			map.invalidateSize();
+		})
+		$('body').fadeIn('slow');
   });
 })
 .filter('is_null', function() {
@@ -199,17 +214,23 @@ angular.module('skuapso', [])
     $scope.$toggle = function() {
       $scope.collapsed = !$scope.collapsed;
     }
+
+		$scope.t = function(event) {
+			console.debug('angular catch');
+		}
   };
 
   def.compile = function($element, $attrs) {
     var c = {};
     var $type = $attrs.list , $id = $attrs.listParentId;
+		$div = function($t, $i) {
+			return '<div data-type="' + $t + '" ' + $t + '="' + $i + '"></div>';
+		}
 
     c['pre'] = function($scope) {
-      var $div, $newElem;
       $element.html('');
       if ($scope.$root.$item($type, $id)) {
-        $element.append('<div ' + $type + '="' + $id +'"></div>');
+        $element.append($div($type, $id));
       }
       $compile($element.addClass('list').contents())($scope);
     };
@@ -230,7 +251,8 @@ angular.module('skuapso', [])
               $newElem = $compile('<li list="'
                   + $type + '"' + 'list-parent-id ="' + $id + '"></li>')($newScope);
             } else {
-              $newElem = $compile('<li><div '+ $type + '="' + $id + '"></div></li>')($scope);
+							$newElem = '<li>' + $div($type, $id) + '</li>';
+              $newElem = $compile($newElem)($scope);
             }
             $newElem.addClass('list-item').addClass($type);
             $ul.append($newElem);
@@ -246,6 +268,7 @@ angular.module('skuapso', [])
       };
 
       var noChilds = function(newValue, oldValue) {
+				var $div;
         if (newValue) {
           $element.find('>img').remove();
         } else if($scope.$root.$item($type, $id)) {
@@ -273,3 +296,34 @@ angular.module('skuapso', [])
 .directive('group', $directive('group', ['group', 'object']))
 .directive('object', $directive('object', []))
 ;
+/*$('menu>command').click(function(ev) {
+	ev.stopPropagation();
+	console.debug('clicked %o when %o', ev, $(this).data('action'));
+	$(this).trigger($(this).data('action'));
+});
+$('body').on('contextmenu', 'div[owner]', function(ev) {
+	console.debug('owner catch event %o', ev);
+});
+$('body').on('click', 'div[group]', function(ev) {
+	console.debug('group catch event %o', ev);
+});
+$('body').on('click', 'div[object]', function(ev) {
+	console.debug('object catch event %o', ev);
+});*/
+
+function mapscope($scope, $http) {
+	angular.extend($scope, {
+		center: {
+			lat: 54,
+			lng: 84,
+			zoom: 7
+		},
+		paths: {}
+	});
+
+//	$scope.paths['1'] = {type: 'polyline', latlngs: [{lat: 54, lng: 83}, {lat: 54, lng:  82}]};
+
+	$http.get('/static/json/track.json').success(function(data) {
+		$scope.paths = data;
+	});
+};

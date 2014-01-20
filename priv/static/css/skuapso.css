@@ -3,7 +3,7 @@ li.owner, li.group, li.object {
   list-style-position: outside;
   line-height: 13pt;
   font-size: 12pt;
-  padding-left: 12pt;
+  padding-left: 0px;
 }
 
 li.owner>img, li.group>img {
@@ -45,6 +45,10 @@ div[group], div[owner], div[object] {
   cursor: pointer;
 }
 
+li>div[group], li>div[owner], li>div[object] {
+	white-space: nowrap;
+}
+
 div.group.active {
   background-color: #0a6;
 }
@@ -60,4 +64,44 @@ div.owner.active.hover {
 
 .hidden {
   display: none;
+}
+
+body {
+	font-family: 'Conv_AGLETCR', 'helvetica';
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	margin: 10px;
+}
+
+div.objects-list {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	width: 300px;
+	float: left;
+	overflow: auto;
+	border: 1px solid black;
+}
+
+div[ng-controller=mapscope] {
+	position: absolute;
+	top: 0px;
+	bottom:0px;
+	left: 301px;
+	right: 0px;
+	float: left;
+	border: 1px solid black;
+}
+
+div[leaflet] {
+	position: absolute;
+	top: 0px;
+	bottom:0px;
+	left: 0px;
+	right: 0px;
+	float: left;
 }
