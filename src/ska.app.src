@@ -1,0 +1,12 @@
+{application, ska,
+ [
+  {description, ""},
+  {vsn, git},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { ska_app, []}},
+  {env, []}
+ ]}.
