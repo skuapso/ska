@@ -2,6 +2,8 @@
 
 -compile(export_all).
 
+-include_lib("logger/include/log.hrl").
+
 init(_Type, _Req, _Opts) ->
   debug("upgrading"),
   {upgrade, protocol, cowboy_static}.

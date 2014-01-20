@@ -45,18 +45,3 @@ dispatch_rules() ->
           {<<"/ws/[...]">>, bullet_handler, [{handler, ska_ws}]},
           {'_', ska_rest, []}
           ]}]).
-
-s() ->
-  cowboy_router:compile(
-    [{'_', [
-          {<<"/sub-1/[...]">>,
-           cowboy_static, [
-              {directory, {priv_dir, www, [<<"sub-1">>]}},
-              {charset, <<"charset-1">>}
-          ]},
-          {<<"sub-2/[...]">>,
-           cowboy_static, [
-              {directory, {priv_dir, www, [<<"sub-2">>]}},
-              {charset, <<"charset-2">>}
-          ]}
-  ]}]).

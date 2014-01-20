@@ -4,6 +4,8 @@
 
 -record(state, {}).
 
+-include_lib("logger/include/log.hrl").
+
 init(_Type, _Req, _Opts) ->
   {upgrade, protocol, cowboy_rest}.
 
