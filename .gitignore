@@ -2,3 +2,6 @@ ebin/*.beam
 ebin/*.app
 lib/*
 .*.swp
+
+priv/static/js/lib/jQuery-contextMenu
+priv/static/js/lib/leaflet-*
