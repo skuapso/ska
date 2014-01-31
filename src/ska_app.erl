@@ -43,5 +43,7 @@ dispatch_rules() ->
               {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
           ]},
           {<<"/ws/[...]">>, bullet_handler, [{handler, ska_ws}]},
+%          {<<"/:v1[/:v2[/:v3[/:v4]]]">>, ska_rest, []},
+          {<<"/track/:object_id">>, ska_rest, []},
           {'_', ska_rest, []}
           ]}]).

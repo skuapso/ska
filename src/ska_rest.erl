@@ -22,15 +22,27 @@ charsets_provided(Req, State) ->
 %  {[<<"ru">>, <<"en">>], Req, State}.
 
 json(Req, State) ->
-  debug("request is ~p", [Req]),
+  debug("request is ~w", [Req]),
   [Path] = cowboy_req:get([path], Req),
-  debug("path is ~p", [Path]),
-  Answer = json(Path),
-  debug("answer is ~p", [Answer]),
+  debug("path is ~w", [Path]),
+  Answer = json(Path, Req, State),
+  debug("answer"),
   {Answer, Req, State}.
 
-json(<<"/items">>) -> sql(select, {ui, items_tree, []}).
+json(<<"/track/", _/binary>>, Req, _) ->
+  trace("getting track"),
+  error_logger:info_msg("req: ~p", [Req]),
+  [Object] = cowboy_req:get([bindings], Req),
+  debug("getting track for ~w", [Object]),
+  sql(select, {ui, track, Object});
+json(<<"/tracks">>, _, _) ->
+  sql(select, {ui, tracks, []});
+json(<<"/items">>, _, _) ->
+  sql(select, {ui, items_tree, []});
+json(Path, _, _) ->
+  emerg("unknown path ~w", [Path]).
+
 
 sql(Req, Data) ->
-  [JSON] = psql:execute(Req, Data),
+  [JSON] = psql:execute(Req, Data, infinity),
   proplists:get_value(json, JSON).
