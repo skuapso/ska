@@ -1,3 +1,5 @@
+'use strict';
+
 var map = L.map('map').setView([55.75, 80.17], 7);
 var t = 0;
 var toJson = angular.toJson;
@@ -81,10 +83,10 @@ var $directive = function($type, $childs) {
   }
 };
 
-angular.module('skuapso', [])
+angular.module('skuapso', ['mgcrea.ngStrap'])
 .run(function($http, $rootScope, $templateCache, $filter) {
   var $preload = function(file) {
-    var $file = '/static/tmpl' + file + '.html';
+    var $file = '/static/tpl/' + file + '.html';
     $http.get($file, {cache: $templateCache})
     .success(function(data) {
       $templateCache.put($file, data);
@@ -170,6 +172,9 @@ angular.module('skuapso', [])
     this.$item('object', 1234).model_id=2;
     angular.element($rootScope.$($item.parent)).scope().$digest();
   }
+  $rootScope['toDateTime'] = new Date();
+  $rootScope['fromDateTime'] = new Date();
+  $rootScope['fromDateTime'].setDate($rootScope['toDateTime'].getDate() - 1);
 
   $http.get('/items').success(function(data) {
     var i;
@@ -229,7 +234,7 @@ angular.module('skuapso', [])
   def.compile = function($element, $attrs) {
     var c = {};
     var $type = $attrs.list , $id = $attrs.listParentId;
-		$div = function($t, $i) {
+		var $div = function($t, $i) {
 			return '<div data-type="' + $t + '" ' + $t + '="' + $i + '"></div>';
 		}
 
@@ -274,7 +279,7 @@ angular.module('skuapso', [])
       };
 
       var noChilds = function(newValue, oldValue) {
-				var $div;
+				var $div, $newElem;
         if (newValue) {
           $element.find('>img').remove();
         } else if($scope.$root.$item($type, $id)) {
@@ -301,7 +306,22 @@ angular.module('skuapso', [])
 .directive('owner', $directive('owner', ['owner', 'group']))
 .directive('group', $directive('group', ['group', 'object']))
 .directive('object', $directive('object', []))
+.config(function($datepickerProvider, $timepickerProvider) {
+  angular.extend($datepickerProvider.defaults, {
+//    dateFormat: 'dd-MM-yyyy'
+//    ,language: 'ru-RU'
+    template: '/static/tpl/angular-strap/datepicker.tpl.html'
+    ,autoclose: true
+  });
+  angular.extend($timepickerProvider.defaults, {
+    template: '/static/tpl/angular-strap/timepicker.tpl.html'
+    ,timeFormat: 'HH:mm'
+    ,minuteStep: 10
+    ,autoclose: true
+  });
+})
 ;
+
 /*$('menu>command').click(function(ev) {
 	ev.stopPropagation();
 	console.debug('clicked %o when %o', ev, $(this).data('action'));
