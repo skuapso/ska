@@ -1,3 +1,4 @@
+var map = L.map('map').setView([55.75, 80.17], 7);
 var t = 0;
 var toJson = angular.toJson;
 var $a = function(el) {return angular.element($(el));};
@@ -80,8 +81,8 @@ var $directive = function($type, $childs) {
   }
 };
 
-angular.module('skuapso', ["leaflet-directive"])
-.run(function($http, $rootScope, $templateCache, $filter, leafletData) {
+angular.module('skuapso', [])
+.run(function($http, $rootScope, $templateCache, $filter) {
   var $preload = function(file) {
     var $file = '/static/tmpl' + file + '.html';
     $http.get($file, {cache: $templateCache})
@@ -120,7 +121,7 @@ angular.module('skuapso', ["leaflet-directive"])
   $rootScope.$childs = function(filter) {
     var i, arr = [], $sub_types = (filter.type == 'owner') ? ['owner', 'group'] :
       (filter.type == 'group') ? ['group', 'object'] : [];
-    
+
     for (i = 0; i < $sub_types.length; i++) {
       var fun = (filter.type == $sub_types[i])
         ? function(el) {return el.parent_id == filter.id;}
@@ -178,10 +179,11 @@ angular.module('skuapso', ["leaflet-directive"])
     for (i in $rootScope.$scopes) {
       $rootScope.$scopes[i] = $filter('orderBy')($rootScope.$scopes[i], 'title');
     }
-		leafletData.getMap().then(function(map) {
-			map.invalidateSize();
-		})
 		$('body').fadeIn('slow');
+		map.invalidateSize();
+  });
+  $http.get('/tracks').success(function(data) {
+    L.geoJson(data).addTo(map);
   });
 })
 .filter('is_null', function() {
@@ -194,6 +196,10 @@ angular.module('skuapso', ["leaflet-directive"])
     }
     return out;
   }
+})
+.directive('management', function() {
+  var def = {};
+  return def;
 })
 .directive('list', function($compile) {
   var def = {};
@@ -310,20 +316,7 @@ $('body').on('click', 'div[group]', function(ev) {
 $('body').on('click', 'div[object]', function(ev) {
 	console.debug('object catch event %o', ev);
 });*/
-
-function mapscope($scope, $http) {
-	angular.extend($scope, {
-		center: {
-			lat: 54,
-			lng: 84,
-			zoom: 7
-		},
-		paths: {}
-	});
-
-//	$scope.paths['1'] = {type: 'polyline', latlngs: [{lat: 54, lng: 83}, {lat: 54, lng:  82}]};
-
-	$http.get('/static/json/track.json').success(function(data) {
-		$scope.paths = data;
-	});
-};
+L.tileLayer('http://{s}.tile.cloudmade.com/548f0a06c2ed4b34aefe2a2a5bca5c08/22677/256/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+    maxZoom: 18
+    }).addTo(map);
