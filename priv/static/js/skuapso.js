@@ -4,8 +4,8 @@ var map = L.map('map').setView([55.75, 80.17], 7);
 var t = 0;
 var toJson = angular.toJson;
 var $a = function(el) {return angular.element($(el));};
-var $s = function(el) {return $a('html').scope();};
-var $i = function(el) {return $a('html').scope().$item();};
+var $s = function() {return $a('html').scope();};
+var $i = function(el) {return $s().$item(el);};
 
 var contextMenuCallback = function() {
 	console.debug('context menu callback');
@@ -47,17 +47,19 @@ var $$item = function(opts) {
         return this;
       };
 
-  if ($opts.type == 'object')
+  if ($opts.type == 'object') {
     return new $item_class($opts, {
       model: {
         get: function() {
           return $rootScope.object.model(this.model_id).title;}
-      },
-      title: {
+      }
+      ,title: {
         get: function() {return this.model + ' ' + this.no;}
       }
     });
-  else return new $item_class($opts);
+  } else {
+    return new $item_class($opts);
+  }
 };
 
 var $directive = function($type, $childs) {
@@ -73,7 +75,7 @@ var $directive = function($type, $childs) {
 
     def.link = function($scope, $element, $attrs) {
       var $obj = {};
-      $obj[$type] = $scope.$root.$item($type, $attrs[$type]);
+      $obj[$type] = $scope.$root.$item({type: $type, id: $attrs[$type]});
       angular.extend($scope, $obj);
       $element.html($scope.$eval($type + '.title'));
       $compile($element.contents())($scope);
@@ -113,14 +115,33 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
   check_dest(['owner'], $rootScope);
   check_dest(['group'], $rootScope);
   check_dest(['object'], $rootScope);
-  $rootScope.$item = function($type, $id) {
-    return $rootScope[$type + 's'].filter(function(element) {
-      return element.id == $id})[0];
+
+  $rootScope['callbacks'] = {};
+  $rootScope['callbacks']['object'] = {};
+  $rootScope['callbacks']['object']['show_track'] = function($obj) {
+    if ($obj.type != 'object') return;
+    if (!$rootScope.$item($obj)) return;
+    var $from = $filter('date')($rootScope['fromDateTime'], 'psql');
+    var $to   = $filter('date')($rootScope['toDateTime'], 'psql');
+    var $url = '/object/' + $obj.id + '/track/'
+              + $from + '/' + $to;
+    console.debug($url);
+    $http.get($url).success(function(data) {
+      L.geoJson(data).addTo(map);
+    });
   };
-  $rootScope.$ = function(el) {
-    return $(el && el.type && el.id) ? $('[' + el.type + '=' + el.id +']') : undefined;
+
+  $rootScope['$item'] = function(el) {
+    return $rootScope[el['type'] + 's'].filter(function(element) {
+      return element.id == el['id'];
+    })[0];
   };
-  $rootScope.$childs = function(filter) {
+
+  $rootScope['$'] = function(el) {
+    return $(el && el.type && el.id) ? $('[' + el.type + '="' + el.id +'"]') : undefined;
+  };
+
+  $rootScope['$childs'] = function(filter) {
     var i, arr = [], $sub_types = (filter.type == 'owner') ? ['owner', 'group'] :
       (filter.type == 'group') ? ['group', 'object'] : [];
 
@@ -132,8 +153,10 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
     }
     return arr;
   };
-  $rootScope.$scopes = new Object();
-  $rootScope.add = function(el) {
+
+  $rootScope['$scopes'] = new Object();
+
+  $rootScope['add'] = function(el) {
     var e = $$item(el), $type, $dest, $str;
     if (e) {
       $type = e.type
@@ -159,6 +182,7 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
       }
     }
   };
+
   $rootScope.test = function() {
     this.add({
       id: 1234,
@@ -168,10 +192,12 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
       type: 'object'
     });
   };
+
   $rootScope.rename = function() {
-    this.$item('object', 1234).model_id=2;
+    this.$item({type: 'object', id: 1}).model_id=2;
     angular.element($rootScope.$($item.parent)).scope().$digest();
   }
+
   $rootScope['toDateTime'] = new Date();
   $rootScope['fromDateTime'] = new Date();
   $rootScope['fromDateTime'].setDate($rootScope['toDateTime'].getDate() - 1);
@@ -186,9 +212,6 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
     }
 		$('body').fadeIn('slow');
 		map.invalidateSize();
-  });
-  $http.get('/tracks').success(function(data) {
-    L.geoJson(data).addTo(map);
   });
 })
 .filter('is_null', function() {
@@ -235,12 +258,12 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
     var c = {};
     var $type = $attrs.list , $id = $attrs.listParentId;
 		var $div = function($t, $i) {
-			return '<div data-type="' + $t + '" ' + $t + '="' + $i + '"></div>';
+			return '<div data-type="' + $t + '" data-id' + '="' + $i + '" ' +$t + '="' + $i + '"></div>';
 		}
 
     c['pre'] = function($scope) {
       $element.html('');
-      if ($scope.$root.$item($type, $id)) {
+      if ($scope.$root.$item({type: $type, id: $id})) {
         $element.append($div($type, $id));
       }
       $compile($element.addClass('list').contents())($scope);
@@ -282,7 +305,7 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
 				var $div, $newElem;
         if (newValue) {
           $element.find('>img').remove();
-        } else if($scope.$root.$item($type, $id)) {
+        } else if($scope.$root.$item({type: $type, id: $id})) {
           $div = $element.find('>div');
           $newElem = ($scope.collapsed) ? 'button-closed.png' : 'button-open.png';
           $newElem = '<img src="/static/img/' + $newElem + '" ng-click="$toggle()">';
@@ -308,8 +331,6 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
 .directive('object', $directive('object', []))
 .config(function($datepickerProvider, $timepickerProvider) {
   angular.extend($datepickerProvider.defaults, {
-//    dateFormat: 'dd-MM-yyyy'
-//    ,language: 'ru-RU'
     template: '/static/tpl/angular-strap/datepicker.tpl.html'
     ,autoclose: true
   });
@@ -322,20 +343,19 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
 })
 ;
 
-/*$('menu>command').click(function(ev) {
-	ev.stopPropagation();
-	console.debug('clicked %o when %o', ev, $(this).data('action'));
-	$(this).trigger($(this).data('action'));
+$('menu>command').on('click', function(ev) {
+  var $item = $('.context-menu-active').data(),
+      $action = $(this).data('action'),
+      $callbacks = $s()['callbacks'],
+      $callback =
+        $callbacks[$item.type]
+        ? $callbacks[$item.type][$action]
+        : $callbacks[$action];
+  if ($callback) {
+    $callback($item);
+  }
 });
-$('body').on('contextmenu', 'div[owner]', function(ev) {
-	console.debug('owner catch event %o', ev);
-});
-$('body').on('click', 'div[group]', function(ev) {
-	console.debug('group catch event %o', ev);
-});
-$('body').on('click', 'div[object]', function(ev) {
-	console.debug('object catch event %o', ev);
-});*/
+
 L.tileLayer('http://{s}.tile.cloudmade.com/548f0a06c2ed4b34aefe2a2a5bca5c08/22677/256/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
     maxZoom: 18

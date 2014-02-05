@@ -63,7 +63,9 @@ angular.module("ngLocale", [], ["$provide", function($provide) {
       "longDate":"d MMMM y 'г'.",
       "mediumDate":"dd.MM.yyyy",
       "shortDate":"dd.MM.yy",
-      "mediumTime":"H:mm:ss","shortTime":"H:mm"
+      "mediumTime":"H:mm:ss",
+      "shortTime":"H:mm",
+      "psql":"yyyy-MM-dd H:mm"
     },
     "id":"ru-ru"
   });
