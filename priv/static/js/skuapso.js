@@ -1,15 +1,27 @@
 'use strict';
 
 var map = L.map('map').setView([55.75, 80.17], 7);
+var cloudMadeApiKey = '548f0a06c2ed4b34aefe2a2a5bca5c08',
+    cloudMadeUrl = 'http://{s}.tile.cloudmade.com/{apiKey}/{styleId}/256/{z}/{x}/{y}.png',
+    cloudMadeAttr = 'Map data &copy; '
+    + '<a href="http://openstreetmap.org">OpenStreetMap</a> contributors, '
+    + '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
+    + 'Imagery © <a href="http://cloudmade.com">CloudMade</a>';
+
+L.tileLayer(cloudMadeUrl, {
+  apiKey: cloudMadeApiKey,
+  styleId: 22677,
+  attribution: cloudMadeAttr,
+  maxZoom: 18
+})
+.addTo(map)
+;
+
 var t = 0;
 var toJson = angular.toJson;
 var $a = function(el) {return angular.element($(el));};
 var $s = function() {return $a('html').scope();};
 var $i = function(el) {return $s().$item(el);};
-
-var contextMenuCallback = function() {
-	console.debug('context menu callback');
-}
 
 var $$item = function(opts) {
   var $opts = opts || {}, $rootScope = angular.element($('html')).scope(),
@@ -63,12 +75,10 @@ var $$item = function(opts) {
 };
 
 var $directive = function($type, $childs) {
+  console.warn($type + ': надо в сервисы/провайдеры перефигачить');
 	$.contextMenu({
 		selector: 'div[' + $type + ']',
-		items: $.contextMenu.fromMenu('menu#' + $type),
-		callback: function() {
-			console.debug('context menu callback');
-		}
+		items: $.contextMenu.fromMenu('menu#' + $type)
 	});
   return function($compile, $templateCache) {
     var def = {};
@@ -85,18 +95,21 @@ var $directive = function($type, $childs) {
   }
 };
 
-angular.module('skuapso', ['mgcrea.ngStrap'])
-.run(function($http, $rootScope, $templateCache, $filter) {
+angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
+.run(function($http, $rootScope, $templateCache, $filter, $injector) {
   var $preload = function(file) {
-    var $file = '/static/tpl/' + file + '.html';
-    $http.get($file, {cache: $templateCache})
+    var $file = '/static/tpl/' + file.replace(/\./g, '/') + '.tpl.html';
+    console.debug('$http: %o', $http.pendingRequests);
+    $http.get($file)
     .success(function(data) {
       $templateCache.put($file, data);
     });
   };
-//  $preload('owner');
-//  $preload('group');
-//  $preload('object');
+  $preload('skuapso.owner');
+  $preload('skuapso.group');
+  $preload('skuapso.object');
+  $preload('mgcrea.ngStrap.datepicker');
+  $preload('mgcrea.ngStrap.timepicker');
   function check_dest(arr, el) {
     if (arr.length == 0) return null;
     var p = arr.shift();
@@ -125,9 +138,18 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
     var $to   = $filter('date')($rootScope['toDateTime'], 'psql');
     var $url = '/object/' + $obj.id + '/track/'
               + $from + '/' + $to;
-    console.debug($url);
+    if ($rootScope['sensor']) $url += '/sensor/1/>/70';
     $http.get($url).success(function(data) {
-      L.geoJson(data).addTo(map);
+      var i, line;
+      try {
+        for (i = 0; i < data.length; i++) {
+          line = L.polyline(data[i].track);
+          line.bindPopup(data[i].object_id + '<br>' + data[i].min + '>>' + data[i].max);
+          line.addTo(map);
+        }
+//          map.fitBounds(lines.getBounds());
+      } catch(err) {
+      };
     });
   };
 
@@ -178,25 +200,10 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
         if ($dest) {
           $rootScope.$scopes[$str] = $filter('orderBy')($dest, 'title');
         }
-        angular.element($rootScope.$(e.parent)).scope().$digest();
+//        angular.element($rootScope.$(e.parent)).scope().$digest();
       }
     }
   };
-
-  $rootScope.test = function() {
-    this.add({
-      id: 1234,
-      no: 'test',
-      model_id: 1,
-      group_id: 146,
-      type: 'object'
-    });
-  };
-
-  $rootScope.rename = function() {
-    this.$item({type: 'object', id: 1}).model_id=2;
-    angular.element($rootScope.$($item.parent)).scope().$digest();
-  }
 
   $rootScope['toDateTime'] = new Date();
   $rootScope['fromDateTime'] = new Date();
@@ -248,10 +255,6 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
     $scope.$toggle = function() {
       $scope.collapsed = !$scope.collapsed;
     }
-
-		$scope.t = function(event) {
-			console.debug('angular catch');
-		}
   };
 
   def.compile = function($element, $attrs) {
@@ -329,13 +332,15 @@ angular.module('skuapso', ['mgcrea.ngStrap'])
 .directive('owner', $directive('owner', ['owner', 'group']))
 .directive('group', $directive('group', ['group', 'object']))
 .directive('object', $directive('object', []))
-.config(function($datepickerProvider, $timepickerProvider) {
+.config(function($datepickerProvider) {
   angular.extend($datepickerProvider.defaults, {
-    template: '/static/tpl/angular-strap/datepicker.tpl.html'
+    template: '/static/tpl/mgcrea/ngStrap/datepicker.tpl.html'
     ,autoclose: true
   });
+})
+.config(function($timepickerProvider) {
   angular.extend($timepickerProvider.defaults, {
-    template: '/static/tpl/angular-strap/timepicker.tpl.html'
+    template: '/static/tpl/mgcrea/ngStrap/timepicker.tpl.html'
     ,timeFormat: 'HH:mm'
     ,minuteStep: 10
     ,autoclose: true
@@ -355,8 +360,3 @@ $('menu>command').on('click', function(ev) {
     $callback($item);
   }
 });
-
-L.tileLayer('http://{s}.tile.cloudmade.com/548f0a06c2ed4b34aefe2a2a5bca5c08/22677/256/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-    maxZoom: 18
-    }).addTo(map);
