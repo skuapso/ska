@@ -1,6 +1,13 @@
 -module(ska_rest).
 
--compile(export_all).
+-export([init/3]).
+-export([rest_init/2]).
+-export([content_types_provided/2]).
+-export([charsets_provided/2]).
+
+-export([json_prepare/2]).
+-export([json/2]).
+-export([sql/2]).
 
 -record(state, {}).
 
@@ -13,7 +20,7 @@ rest_init(Req, _Opts) ->
   {ok, Req, #state{}}.
 
 content_types_provided(Req, State) ->
-  {[{<<"application/json">>, json}], Req, State}.
+  {[{<<"application/json">>, json_prepare}], Req, State}.
 
 charsets_provided(Req, State) ->
   {[<<"utf-8">>], Req, State}.
@@ -21,41 +28,45 @@ charsets_provided(Req, State) ->
 %languages_provided(Req, State) ->
 %  {[<<"ru">>, <<"en">>], Req, State}.
 
-json(Req, State) ->
+json_prepare(Req, State) ->
   debug("request is ~w", [Req]),
   [Path] = cowboy_req:get([path], Req),
   PathPretty = pretty_uri(Path),
-  [<<>> | Args] = re:split(PathPretty, "/"),
+  [<<>>, Object | Args] = re:split(PathPretty, "/"),
   debug("path is ~w", [Args]),
-  Answer = erlang:apply(?MODULE, json, Args),
+  Answer = erlang:apply(?MODULE, json, [Object, Args]),
   debug("answer"),
   {Answer, Req, State}.
 
-json(<<"items">>) ->
-  sql(select, {ui, items_tree, []}).
-
 sql(Req, Data) ->
+  debug("query is ~w: ~w", [Req, Data]),
   case psql:execute(Req, Data, infinity) of
-    [] -> <<>>;
-    [[{json, Vals}]] -> Vals
+    [] -> [];
+    [[{json, null}]] -> [];
+    [[{json, Vals}]] -> Vals;
+    Vals -> Vals
   end.
 
-json(<<"object">>, Id, <<"track">>, FromDateTime, ToDateTime) ->
-  Query = "select st_asGeoJSON(s1.track) as json "
-            "from ("
-              "select S.object_id,st_makeline(s.location) as track "
-              "from ("
-                "select object_id,location::geometry "
-                "from events.data "
-                "where valid and location is not null "
-                "and object_id=$1 and time>=($2::timestamptz) and time<=($3::timestamptz) "
-                "order by object_id,time desc"
-              ") s group by object_id"
-            ") s1",
-  sql(execute, {Query, [
-                        binary_to_integer(Id),
-                        ska:to_datetime(FromDateTime),
-                        ska:to_datetime(ToDateTime)]}).
+json(<<"items">>, []) ->
+  Query =
+    "select array_to_json(array_agg(row_to_json)) as json from("
+      "select row_to_json(owners) from ("
+        "select *,'owner' as \"type\" from owners.data"
+      ") owners"
+      " union all select row_to_json(groups) from ("
+        "select *,'group' as \"type\" from groups.tree"
+      ") groups"
+      " union all select row_to_json(objects) from ("
+        "select *,'object' as \"type\" from objects.data"
+      ") objects"
+      " union all select row_to_json(objects_models) from ("
+        "select *,'object_model' as \"type\" from objects.models"
+      ") objects_models"
+    ") S",
+  sql(execute, {Query, []});
+
+json(<<"object">>, Args) ->
+  ska_object:json(Args).
 
 pretty_uri(Path) -> pretty_uri(<<>>, Path).
 pretty_uri(Result, <<$%, A, B, Rest/binary>>) when A >= $0, A =< $F, B >= $0, B =< $F ->
