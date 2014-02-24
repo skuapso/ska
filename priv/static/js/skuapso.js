@@ -64,7 +64,7 @@ var $directive = function($type, $childs) {
       var $obj = {};
       $obj[$type] = $scope.$root.$item({type: $type, id: $attrs[$type]});
       angular.extend($scope, $obj);
-      $element.html($scope.$eval($type + '.title'));
+      $element.html('{{' + $type + '.title}}');
       $compile($element.contents())($scope);
     };
 
