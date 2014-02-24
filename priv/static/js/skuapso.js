@@ -85,8 +85,6 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
   $preload('skuapso.owner');
   $preload('skuapso.group');
   $preload('skuapso.object');
-  $preload('mgcrea.ngStrap.datepicker');
-  $preload('mgcrea.ngStrap.timepicker');
 
   $rootScope['callbacks'] = {};
   $rootScope['callbacks']['object'] = {};
@@ -323,29 +321,4 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
 .directive('owner', $directive('owner', ['owner', 'group']))
 .directive('group', $directive('group', ['group', 'object']))
 .directive('object', $directive('object', []))
-.config(function($datepickerProvider) {
-  angular.extend($datepickerProvider.defaults, {
-    template: '/static/tpl/mgcrea/ngStrap/datepicker.tpl.html'
-    ,autoclose: true
-  });
-})
-.config(function($timepickerProvider) {
-  angular.extend($timepickerProvider.defaults, {
-    template: '/static/tpl/mgcrea/ngStrap/timepicker.tpl.html'
-    ,timeFormat: 'HH:mm'
-    ,minuteStep: 10
-    ,autoclose: true
-  });
-})
-.config(function($tooltipProvider) {
-  angular.extend($tooltipProvider.defaults, {
-    template: '/static/tpl/mgcrea/ngStrap/tooltip.tpl.html'
-  });
-})
-.config(function($tabProvider) {
-  angular.extend($tabProvider.defaults, {
-    template: '/static/tpl/mgcrea/ngStrap/tab.tpl.html'
-    ,animation: 'am-flip-x'
-  });
-})
 ;
