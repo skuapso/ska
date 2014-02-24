@@ -1,4 +1,5 @@
 ebin/*.beam
 ebin/*.app
 lib/*
+priv/bower_components
 .*.swp
