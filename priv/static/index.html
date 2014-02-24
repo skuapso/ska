@@ -18,6 +18,7 @@
   </menu>
   <menu type='context' id='object'>
     <menu label='Редактировать'>
+      <command label='Все' data-action='edit'>
       <command label='Гос. номер' data-action='edit_no'>
       <command label='Модель' data-action='edit_model_id'>
       <command label='Терминал' data-action='edit_terminal_id'>
@@ -36,7 +37,7 @@
       <input ng-model='toDateTime' bs-timepicker type='text'>
     </span>
     <span>
-      <input type='checkbox' ng-model='sensor'>&nbsp;Датчик
+      &nbsp;<input type='checkbox' ng-model='sensor'>&nbsp;Датчик&nbsp;
     </span>
   </div>
   <div class='objects-list'>

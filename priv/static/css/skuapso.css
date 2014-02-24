@@ -1,8 +1,19 @@
+body {
+	font-family: 'Conv_AGLETCR','Helvetica Neue',Helvetica,Arial,sans-serif;
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	margin: 8px;
+  font-size: 16px;
+  line-height: 18px;
+  color: #000;
+}
+
 li.owner, li.group, li.object {
   list-style-type: none;
   list-style-position: outside;
-  line-height: 13pt;
-  font-size: 12pt;
   padding-left: 0px;
 }
 
@@ -66,16 +77,6 @@ div.owner.active.hover {
   display: none;
 }
 
-body {
-	font-family: 'Conv_AGLETCR','Helvetica Neue',Helvetica,Arial,sans-serif;
-	position: absolute;
-	top: 0px;
-	bottom: 0px;
-	left: 0px;
-	right: 0px;
-	margin: 8px;
-}
-
 div[management] {
   position: absolute;
   top: 0px;
@@ -114,15 +115,35 @@ div#map {
 }
 
 input[bs-datepicker] {
-  width: 60px;
+  width: 65px;
   padding: 1px;
 }
 
 input[bs-timepicker] {
-  width: 40px;
+  width: 45px;
   padding: 1px;
 }
 
 .leaflet-top {
   z-index: 100;
+}
+
+.nav-tabs {
+  margin-bottom: 16px;
+}
+
+div.edit.object input, div.edit.object select  {
+  margin-left: 32px;
+  width: 200px;
+}
+
+.modal-backdrop {
+  opacity: 0.5;
+}
+
+.modal button.close {
+  position: absolute;
+  padding: 10px;
+  top: 0px;
+  right: 0px;
 }

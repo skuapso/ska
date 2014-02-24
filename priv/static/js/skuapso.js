@@ -96,10 +96,10 @@ var $directive = function($type, $childs) {
 };
 
 angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
-.run(function($http, $rootScope, $templateCache, $filter, $injector) {
+.run(function($http, $rootScope, $templateCache, $filter, $modal, $log) {
   var $preload = function(file) {
     var $file = '/static/tpl/' + file.replace(/\./g, '/') + '.tpl.html';
-    console.debug('$http: %o', $http.pendingRequests);
+    $log.debug('$http: %o', $http.pendingRequests);
     $http.get($file)
     .success(function(data) {
       $templateCache.put($file, data);
@@ -110,6 +110,16 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
   $preload('skuapso.object');
   $preload('mgcrea.ngStrap.datepicker');
   $preload('mgcrea.ngStrap.timepicker');
+
+  $rootScope['callbacks'] = {};
+  $rootScope['callbacks']['object'] = {};
+  $rootScope['sensor'] = true;
+  $rootScope['$scopes'] = {};
+  $rootScope['toDateTime'] = new Date();
+  $rootScope['fromDateTime'] = new Date();
+  $rootScope['fromDateTime'].setDate($rootScope['toDateTime'].getDate() - 1);
+  $rootScope['paths'];
+
   function check_dest(arr, el) {
     if (arr.length == 0) return null;
     var p = arr.shift();
@@ -118,10 +128,10 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
         return el[p].filter(function(ele) {return ele.id == i}).pop();
       }
       p += 's';
-      if (!el[p]) el[p] = new Array();
+      if (!el[p]) el[p] = [];
       return el[p];
     } else {
-      if (!el[p]) el[p] = new Object();
+      if (!el[p]) el[p] = {};
       return check_dest(arr, el[p]);
     }
   };
@@ -129,8 +139,8 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
   check_dest(['group'], $rootScope);
   check_dest(['object'], $rootScope);
 
-  $rootScope['callbacks'] = {};
-  $rootScope['callbacks']['object'] = {};
+  $rootScope['t1'] = {t1: "hello"};
+  $rootScope['t2'] = {t: "t2"};
   $rootScope['callbacks']['object']['show_track'] = function($obj) {
     if ($obj.type != 'object') return;
     if (!$rootScope.$item($obj)) return;
@@ -140,17 +150,27 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
               + $from + '/' + $to;
     if ($rootScope['sensor']) $url += '/sensor/1/>/70';
     $http.get($url).success(function(data) {
-      var i, line;
-      try {
-        for (i = 0; i < data.length; i++) {
-          line = L.polyline(data[i].track);
-          line.bindPopup(data[i].object_id + '<br>' + data[i].min + '>>' + data[i].max);
-          line.addTo(map);
-        }
-//          map.fitBounds(lines.getBounds());
-      } catch(err) {
-      };
+      var i, line, lines;
+      for (i = 0; i < data.length; i++) {
+        line = L.polyline(data[i].track);
+        line.bindPopup(data[i].object_id + '<br>' + data[i].min + '>>' + data[i].max);
+        line.addTo(map);
+      }
+      //          map.fitBounds(lines.getBounds());
     });
+  };
+  $rootScope['callbacks']['object']['edit'] = function(opts) {
+    if (opts.type != 'object') return;
+    var object = $rootScope.$item(opts);
+    if (!object) return;
+    if (!$rootScope.edit) $rootScope.edit = {};
+    $rootScope.edit.object = object;
+    var modalOpts = {
+      template: '/static/tpl/skuapso/object.edit.tpl.html',
+      scope: $rootScope,
+      show: true
+    };
+    var modal = $modal(modalOpts);
   };
 
   $rootScope['$item'] = function(el) {
@@ -176,8 +196,6 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
     return arr;
   };
 
-  $rootScope['$scopes'] = new Object();
-
   $rootScope['add'] = function(el) {
     var e = $$item(el), $type, $dest, $str;
     if (e) {
@@ -194,7 +212,7 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
           $dest = $rootScope.$scopes[$str] = new Array();
         $dest.push(e);
       }
-    } else console.error('rejected %o', data[i]);
+    } else $log.error('rejected %o', data[i]);
     if ($rootScope.$loaded) {
       if (e.parent) {
         if ($dest) {
@@ -204,10 +222,6 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
       }
     }
   };
-
-  $rootScope['toDateTime'] = new Date();
-  $rootScope['fromDateTime'] = new Date();
-  $rootScope['fromDateTime'].setDate($rootScope['toDateTime'].getDate() - 1);
 
   $http.get('/items').success(function(data) {
     var i;
@@ -346,9 +360,20 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
     ,autoclose: true
   });
 })
+.config(function($tooltipProvider) {
+  angular.extend($tooltipProvider.defaults, {
+    template: '/static/tpl/mgcrea/ngStrap/tooltip.tpl.html'
+  });
+})
+.config(function($tabProvider) {
+  angular.extend($tabProvider.defaults, {
+    template: '/static/tpl/mgcrea/ngStrap/tab.tpl.html'
+    ,animation: 'am-flip-x'
+  });
+})
 ;
 
-$('menu>command').on('click', function(ev) {
+var contextMenuClick = function(ev) {
   var $item = $('.context-menu-active').data(),
       $action = $(this).data('action'),
       $callbacks = $s()['callbacks'],
@@ -359,4 +384,6 @@ $('menu>command').on('click', function(ev) {
   if ($callback) {
     $callback($item);
   }
-});
+};
+
+$('menu>command').on('click', contextMenuClick);

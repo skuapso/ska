@@ -1,0 +1,59 @@
+<div class="modal edit object" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form>
+        <div class="modal-header">
+          Редактирование транспортного средства<br>
+          <b>{{edit.object.title}}</b>
+          <button type="button" class="close" ng-click="$hide()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <ul class='nav nav-tabs'>
+            <li class='active'><a href='#common' data-toggle='tab'>Общее</a></li>
+            <li><a href='#sensors' data-toggle='tab'>Датчики</a></li>
+          </ul>
+          <div class='tab-content'>
+            <table class='tab-pane active' id='common'>
+              <tr>
+                <td>Гос. номер</td>
+                <td><input type='text' value='{{edit.object.no}}'></td>
+              </tr>
+              <tr>
+                <td>Модель</td>
+                <td>
+                  <input value='{{edit.object.model_id}}'></td>
+              </tr>
+              <tr>
+                <td>Специализация</td>
+                <td><input value='{{edit.object.specialization_id}}'></td>
+              </tr>
+              <tr>
+                <td>Группа</td>
+                <td>
+                  <select ng-model='edit.object.group_id'>
+                    <option
+                      ng-repeat='group in groups'
+                      ng-selected='group.id==edit.object.group_id'
+                      value='{{group.id}}'>
+                      {{group.title}}
+                    </option>
+                  </select>
+              </tr>
+              <tr>
+                <td>Навигационный терминал</td>
+                <td><input value='{{edit.object.terminal_id}}'></td>
+              </tr>
+            </table>
+            <div class='tab-pane' id='sensors'>
+              Здесь должны быть датчики
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type='button' class='btn btn-primary'>Save</button>
+          <button type="button" class="btn btn-default" ng-click="$hide()">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
