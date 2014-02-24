@@ -64,7 +64,7 @@ var $directive = function($type, $childs) {
       var $obj = {};
       $obj[$type] = $scope.$root.$item({type: $type, id: $attrs[$type]});
       angular.extend($scope, $obj);
-      $element.html('{{' + $type + '.title}}');
+      $element.html($scope.$eval($type + '.title'));
       $compile($element.contents())($scope);
     };
 
@@ -76,7 +76,6 @@ angular.module('skuapso', ['mgcrea.ngStrap', 'skuapso.test'])
 .run(function($http, $rootScope, $templateCache, $filter, $modal, $log) {
   var $preload = function(file) {
     var $file = '/static/tpl/' + file.replace(/\./g, '/') + '.tpl.html';
-    $log.debug('$http: %o', $http.pendingRequests);
     $http.get($file)
     .success(function(data) {
       $templateCache.put($file, data);
