@@ -29,3 +29,5 @@ var jq_rename = function() {
 };
 
 $('#rename').on('click', jq_rename);
+
+var model = new SkuapsoObject({id: 1, no: 'Камаз'});
