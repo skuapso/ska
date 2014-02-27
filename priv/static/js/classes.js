@@ -64,7 +64,7 @@ angular.module('skuapso-init', []).service('skuapso-init', function() {
 
 angular.module('skuapso-init')
 .service('skuapso-objects',       ['skuapso-init', function() {}])
-.service('skuapso-owners',        ['skuapso-init', function() {tmp = this}])
+.service('skuapso-owners',        ['skuapso-init', function() {}])
 .service('skuapso-groups',        ['skuapso-init', function() {}])
 .service('skuapso-objects-models', ['skuapso-init', function() {}])
 
