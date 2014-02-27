@@ -57,7 +57,7 @@ var $directive = function($type, $childs) {
 		selector: 'div[' + $type + ']',
 		items: $.contextMenu.fromMenu('menu#' + $type)
 	});
-  return function($compile, $templateCache) {
+  return function($compile) {
     var def = {};
 
     def.link = function($scope, $element, $attrs) {
@@ -82,29 +82,9 @@ var skuapsoModule = angular.module('skuapso',
     ]);
 
 skuapsoModule
-.run(function($rootScope) {
-  console.debug('first');
-  angular.extend($rootScope,
-    {'@objects': {'@models': {}}},
-    {'@groups': {}},
-    {'@owners': {}},
-    {'@terminals': {'@models': {}}},
-    {'@sensors': {'@models': {}}}
-  );
-})
-.controller('s-init', ['$scope', 'Restangular', '@init', function(scope, http, init) {
-  console.debug('skuapso init %o', scope);
-
-  var rest = http.all('');
-
-  rest.get('objects').then(function(data) {
-    console.debug('got %o', init);
-    var k, obj;
-    for (k = 0; k < data.length; k++) {
-      console.debug('creating object %o', JSON.stringify(data[k]));
-      scope['@objects'][data[k].id] = new init.object(data[k]);
-    }
-  });
+.run(['skuapso-owners', 'skuapso-data', function(o, data) {
+  console.debug('objects: %o', o);
+  console.debug('data %o', data);
 }])
 .run(function($http, $rootScope, $templateCache, $filter, $modal, $log) {
   $log.debug('skuapso run');
@@ -259,4 +239,36 @@ skuapsoModule
 .directive('owner', $directive('owner', ['owner', 'group']))
 .directive('group', $directive('group', ['group', 'object']))
 .directive('object', $directive('object', []))
+.controller('listRoot', ['$scope', 'skuapso-owners', function(scope, owners) {
+  console.debug('listRoot');
+  var id;
+  scope.childs = [];
+  for (id in owners) {
+    if (!owners[id].parent_id || owners[id].parent_id == null) {
+      scope.childs.push(owners[id]);
+    }
+  }
+  scope.node = {};
+  console.debug('scope is %o', scope);
+}])
+.directive('skIfLoaded', ['$compile', function(compile) {
+  var def = {};
+
+  def.controller = ['$scope', '$element', function(scope, element) {
+    scope.$html = element.html();
+  }];
+
+  def.link = function(scope, element, attr) {
+    scope.$watch(attr.skIfLoaded, function(value) {
+      if (value) {
+        element.html(scope.$html);
+      } else {
+        element.html('');
+      }
+      compile(element.contents())(scope);
+    });
+  };
+
+  return def;
+}])
 ;

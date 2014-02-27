@@ -9,7 +9,7 @@
   <link rel="stylesheet" type="text/css" href="/static/css/skuapso.css" />
   <title>S.K.U.A.P.S.O.</title>
 </head>
-<body style='display: none'>
+<body>
   <menu type='context' id='owner'>
     <command label='Переименовать' data-action='edit_title'>
   </menu>
@@ -26,29 +26,31 @@
     <command label='Трек' data-action='show_track'>
   </menu>
 
-  <div management>
-    <span>
-      <input ng-model='fromDateTime' data-max-date='{{toDateTime}}' bs-datepicker type='text'>
-      <input ng-model='fromDateTime' bs-timepicker type='text'>
-    </span>
-    &gt;&gt;
-    <span>
-      <input ng-model='toDateTime' data-min-date='{{fromDateTime}}' bs-datepicker type='text'>
-      <input ng-model='toDateTime' bs-timepicker type='text'>
-    </span>
-    <span>
-      &nbsp;<input type='checkbox' ng-model='sensor'>&nbsp;Датчик&nbsp;
-    </span>
-  </div>
-  <div class='objects-list'>
-    <p>Русский текст</p>
-    <a href='#' ng-click='test()'>Добавить</a>&nbsp;
-    <a href='#' ng-click='rename()'>Переименовать</a>&nbsp;
-    <input type='text' ng-model='itemFilter'><br>
-    <div list='owner'></div>
-  </div>
+  <div sk-if-loaded='loaded'>
+    <div management>
+      <span>
+        <input ng-model='fromDateTime' data-max-date='{{toDateTime}}' bs-datepicker type='text'>
+        <input ng-model='fromDateTime' bs-timepicker type='text'>
+      </span>
+      &gt;&gt;
+      <span>
+        <input ng-model='toDateTime' data-min-date='{{fromDateTime}}' bs-datepicker type='text'>
+        <input ng-model='toDateTime' bs-timepicker type='text'>
+      </span>
+      <span>
+        &nbsp;<input type='checkbox' ng-model='sensor'>&nbsp;Датчик&nbsp;
+      </span>
+    </div>
+    <div class='objects-list' ng-controller='listRoot'>
+      <p>Русский текст</p>
+      <a href='#' ng-click='test()'>Добавить</a>&nbsp;
+      <a href='#' ng-click='rename()'>Переименовать</a>&nbsp;
+      <input type='text' ng-model='itemFilter'><br>
+      <div list='owner'></div>
+    </div>
 
-  <div id='map'>
+    <div id='map'>
+    </div>
   </div>
 
   <script type='text/javascript' src='/static/js/lib/jquery/dist/jquery.js'></script>
