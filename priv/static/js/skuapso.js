@@ -251,7 +251,7 @@ skuapsoModule
   scope.node = {};
   console.debug('scope is %o', scope);
 }])
-.directive('skIfLoaded', ['$compile', function(compile) {
+.directive('skIf', ['$compile', function(compile) {
   var def = {};
 
   def.controller = ['$scope', '$element', function(scope, element) {
@@ -259,7 +259,7 @@ skuapsoModule
   }];
 
   def.link = function(scope, element, attr) {
-    scope.$watch(attr.skIfLoaded, function(value, oldValue) {
+    scope.$watch(attr.skIf, function(value, oldValue) {
       console.debug('rebuilding content of skIfLoaded');
       if (value && !oldValue) {
         element.html(scope.$html);
