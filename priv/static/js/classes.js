@@ -1,12 +1,6 @@
 'use strict';
 
-angular.module('skuapso-init', [])
-.provider('skuapso-init-item-provider', function () {
-  this.$get = [function() {
-
-  }];
-})
-.service('skuapso-init-item', function() {
+angular.module('skuapso-init', []).service('skuapso-init', function() {
   var inherit = function(Child, Parent) {
     var F = function() {};
     F.prototype = Parent.prototype;
@@ -27,9 +21,7 @@ angular.module('skuapso-init', [])
     inherit(F, SkuapsoItem);
     return F;
   };
-});
 
-angular.module('skuapso-init').service('skuapso-init', function() {
   var SkuapsoOwner = function(props) {
     props.type = 'owner';
     SkuapsoOwner.superclass.constructor.call(this, props);
@@ -67,4 +59,38 @@ angular.module('skuapso-init').service('skuapso-init', function() {
   this.object = SkuapsoObject;
   this.group = SkuapsoGroup;
   this.owner = SkuapsoOwner;
+  this.object_model = SkuapsoObjectModel;
 });
+
+angular.module('skuapso-init')
+.service('skuapso-objects',       ['skuapso-init', function() {}])
+.service('skuapso-owners',        ['skuapso-init', function() {tmp = this}])
+.service('skuapso-groups',        ['skuapso-init', function() {}])
+.service('skuapso-objects-models', ['skuapso-init', function() {}])
+
+.service('skuapso-data', [
+    'Restangular',
+    '$rootScope',
+    'skuapso-init',
+    'skuapso-objects',
+    'skuapso-owners',
+    'skuapso-groups',
+    'skuapso-objects-models',
+    function(http, root, init, objects, owners, groups, objectsModels) {
+      root.loaded = false;
+      var rest = http.all(''), data = this;
+      this.objects = objects;
+      this.owners = owners;
+      this.groups = groups;
+      this.object_models = objectsModels;
+      rest.get('items').then(function(items) {
+        var i = 0, l = items.length;
+        for (i; i < l; i++) {
+          data[items[i].type + 's'][items[i].id] = new init[items[i].type](items[i]);
+        }
+        root.loaded = true;
+        console.debug('loaded');
+      });
+    }]
+)
+;
