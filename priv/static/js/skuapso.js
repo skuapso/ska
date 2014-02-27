@@ -259,8 +259,9 @@ skuapsoModule
   }];
 
   def.link = function(scope, element, attr) {
-    scope.$watch(attr.skIfLoaded, function(value) {
-      if (value) {
+    scope.$watch(attr.skIfLoaded, function(value, oldValue) {
+      console.debug('rebuilding content of skIfLoaded');
+      if (value && !oldValue) {
         element.html(scope.$html);
       } else {
         element.html('');
@@ -268,6 +269,8 @@ skuapsoModule
       compile(element.contents())(scope);
     });
   };
+
+  def.terminal = true;
 
   return def;
 }])
