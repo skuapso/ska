@@ -78,6 +78,7 @@ var skuapsoModule = angular.module('skuapso',
     'restangular',
     'skuapso-tree',
     'skuapso-init',
+    'skuapso-map',
     'skuapso.test'
     ]);
 
@@ -218,7 +219,6 @@ skuapsoModule
       $rootScope.$scopes[i] = $filter('orderBy')($rootScope.$scopes[i], 'title');
     }
 		$('body').fadeIn('slow');
-		map.invalidateSize();
   });
 })
 .filter('is_null', function() {

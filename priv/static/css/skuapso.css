@@ -102,7 +102,7 @@ div.objects-list {
   padding-left: 8px;
 }
 
-div#map {
+div[skuapso-map] {
 	position: absolute;
 	top: 32px;
 	bottom:0px;
