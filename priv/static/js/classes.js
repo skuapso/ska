@@ -27,12 +27,24 @@ angular.module('skuapso-init', []).service('skuapso-init', function() {
     SkuapsoOwner.superclass.constructor.call(this, props);
   };
   inherit(SkuapsoOwner, SkuapsoItem);
+  Object.defineProperty(SkuapsoOwner.prototype, 'parent', {
+    get: function() {
+      return this.parent_id ? {type: 'owner', id: this.parent_id}
+                          : {type: 'owner', id: null};
+    }
+  });
 
   var SkuapsoGroup = function(props) {
     props.type = 'group';
     SkuapsoGroup.superclass.constructor.call(this, props);
   };
   inherit(SkuapsoGroup, SkuapsoItem);
+  Object.defineProperty(SkuapsoGroup.prototype, 'parent', {
+    get: function() {
+      return this.parent_id ? {type: 'group', id: this.parent_id}
+                          : {type: 'owner', id: this.owner_id};
+    }
+  });
 
   var SkuapsoObjectModel = function(props) {
     props.type = 'object_model';
@@ -56,6 +68,12 @@ angular.module('skuapso-init', []).service('skuapso-init', function() {
       return this.model + ' ' + this.no;
     }
   });
+  Object.defineProperty(SkuapsoObject.prototype, 'parent', {
+    get: function() {
+      return this.group_id ? {type: 'group', id: this.group_id}
+                          : {type: 'owner', id: this.owner_id};
+    }
+  });
   this.object = SkuapsoObject;
   this.group = SkuapsoGroup;
   this.owner = SkuapsoOwner;
@@ -77,19 +95,41 @@ angular.module('skuapso-init')
     'skuapso-groups',
     'skuapso-objects-models',
     function(http, root, init, objects, owners, groups, objectsModels) {
-      root.loaded = false;
       var rest = http.all(''), data = this;
+      root.loaded = false;
       this.objects = objects;
       this.owners = owners;
       this.groups = groups;
       this.object_models = objectsModels;
-      rest.get('items').then(function(items) {
-        var i = 0, l = items.length;
-        for (i; i < l; i++) {
-          data[items[i].type + 's'][items[i].id] = new init[items[i].type](items[i]);
+      this.get = function(obj) {
+        return this[obj.type + 's'][obj.id];
+      };
+      this.childs = function(obj) {
+        var id, i, src, item;
+        var childs = [];
+        var sources = ['owners', 'groups', 'objects'];
+        for (i in sources) {
+          src = sources[i];
+          for (id in this[src]) {
+            item = this[src][id];
+            if (item.parent.type == obj.type && item.parent.id == obj.id) {
+              childs.push(item);
+            }
+          }
         }
-        root.loaded = true;
-        console.debug('loaded');
+        return childs;
+      };
+      rest.get('items').then(function(items) {
+        var i = 0, l = items.length, item;
+        for (i; i < l; i++) {
+          item = data[items[i].type + 's'][items[i].id] = new init[items[i].type](items[i]);
+          Object.defineProperty(item, 'childs', {
+            get: function() {
+              return data.childs(this);
+            }
+          });
+          root.loaded = true;
+        }
       });
     }]
 )
