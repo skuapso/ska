@@ -72,4 +72,6 @@ skuapsoModule
 
   return def;
 }])
+.config(function($datepickerProvider) {$datepickerProvider.defaults.autoclose = true;})
+.config(function($timepickerProvider) {$timepickerProvider.defaults.autoclose = true;})
 ;
