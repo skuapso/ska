@@ -81,10 +81,10 @@ angular.module('skuapso-init', []).service('skuapso-init', function() {
 });
 
 angular.module('skuapso-init')
-.service('skuapso-objects',       ['skuapso-init', function() {}])
-.service('skuapso-owners',        ['skuapso-init', function() {}])
-.service('skuapso-groups',        ['skuapso-init', function() {}])
-.service('skuapso-objects-models', ['skuapso-init', function() {}])
+.service('skuapso-objects',         function() {})
+.service('skuapso-owners',          function() {})
+.service('skuapso-groups',          function() {})
+.service('skuapso-objects-models',  function() {})
 
 .service('skuapso-data', [
     'Restangular',
@@ -95,7 +95,8 @@ angular.module('skuapso-init')
     'skuapso-groups',
     'skuapso-objects-models',
     function(http, root, init, objects, owners, groups, objectsModels) {
-      var rest = http.all(''), data = this;
+      var rest = http.all(''), data = this, emptyArray = [], childs = {};
+
       root.loaded = false;
       this.objects = objects;
       this.owners = owners;
@@ -105,31 +106,28 @@ angular.module('skuapso-init')
         return this[obj.type + 's'][obj.id];
       };
       this.childs = function(obj) {
-        var id, i, src, item;
-        var childs = [];
-        var sources = ['owners', 'groups', 'objects'];
-        for (i in sources) {
-          src = sources[i];
-          for (id in this[src]) {
-            item = this[src][id];
-            if (item.parent.type == obj.type && item.parent.id == obj.id) {
-              childs.push(item);
-            }
-          }
-        }
-        return childs;
+        return childs[obj.type + '_' + obj.id]
+          ? childs[obj.type + '_' + obj.id]
+          : emptyArray;
       };
       rest.get('items').then(function(items) {
         var i = 0, l = items.length, item;
         for (i; i < l; i++) {
           item = data[items[i].type + 's'][items[i].id] = new init[items[i].type](items[i]);
+          if (!item.parent) continue;
+          if (!childs[item.parent.type + '_' + item.parent.id]) {
+            childs[item.parent.type + '_' + item.parent.id] = [];
+          }
+          childs[item.parent.type + '_' + item.parent.id].push(item);
           Object.defineProperty(item, 'childs', {
             get: function() {
-              return data.childs(this);
+              return childs[this.type + '_' + this.id]
+                ? childs[this.type + '_' + this.id]
+                : emptyArray;
             }
           });
-          root.loaded = true;
         }
+        root.loaded = true;
       });
     }]
 )
