@@ -6,13 +6,15 @@ var $directive = function($type, $childs) {
 		selector: 'div.context-menu.' + $type,
 		items: $.contextMenu.fromMenu('menu#' + $type)
 	});
-  return ['$compile', 'skuapso-data', function($compile, data) {
+  return ['skuapso-data', function(data) {
     var def = {};
 
     def.link = function($scope, $element, $attrs) {
       var obj = data.get({type: $type, id: $attrs[$type]});
+      var d = 'data-type="' + $type + '" data-id="' + $attrs[$type] + '"';
       $element.find('>div.'+obj.type).remove();
-      $element.prepend('<div class="context-menu ' + obj.type + '">' + obj.title + '</div>');
+      $element.prepend('<div '+ d +' class="context-menu ' + obj.type + '">'
+          + obj.title + '</div>');
     };
 
     return def;
