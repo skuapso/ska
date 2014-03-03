@@ -48,12 +48,19 @@ json([ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
 track_condition([]) -> {"true", "", "", []};
 track_condition([<<"sensor">>, SensorIdBin, Cond, SensorValue]) ->
   SensorId = binary_to_integer(SensorIdBin),
-  SensorDataType = ska_rest:sql(execute, {"select sensor.data_type(object.sensor($1)) as json", [SensorId]}),
-  debug("sensor data type is ~w", [SensorDataType]),
-  alert("sql injection"),
-  {
-   "value::" ++ binary_to_list(SensorDataType) ++ binary_to_list(Cond) ++ binary_to_list(SensorValue),
-   " left join events.sensors S using(id)",
-   " and sensor_id=$4",
-   [SensorId]
-  }.
+  case ska_rest:sql(execute, {"select sensor.data_type(object.sensor($1)) as json", [SensorId]}) of
+    [] ->
+      warning("sensor type not found"),
+      track_condition([]);
+    SensorDataType ->
+      debug("sensor data type is ~w", [SensorDataType]),
+      alert("sql injection"),
+      {
+       "value::" ++ binary_to_list(SensorDataType)
+              ++ binary_to_list(Cond)
+              ++ binary_to_list(SensorValue),
+       " left join events.sensors S using(id)",
+       " and sensor_id=$4",
+       [SensorId]
+      }
+  end.
