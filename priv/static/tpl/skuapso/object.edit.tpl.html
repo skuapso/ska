@@ -4,7 +4,7 @@
       <form>
         <div class="modal-header">
           Редактирование транспортного средства<br>
-          <b>{{edit.object.title}}</b>
+          <b>{{object.title}}</b>
           <button type="button" class="close" ng-click="$hide()">&times;</button>
         </div>
         <div class="modal-body">
@@ -16,24 +16,24 @@
             <table class='tab-pane active' id='common'>
               <tr>
                 <td>Гос. номер</td>
-                <td><input type='text' value='{{edit.object.no}}'></td>
+                <td><input type='text' value='{{object.no}}'></td>
               </tr>
               <tr>
                 <td>Модель</td>
                 <td>
-                  <input value='{{edit.object.model_id}}'></td>
+                  <input value='{{object.model_id}}'></td>
               </tr>
               <tr>
                 <td>Специализация</td>
-                <td><input value='{{edit.object.specialization_id}}'></td>
+                <td><input value='{{object.specialization_id}}'></td>
               </tr>
               <tr>
                 <td>Группа</td>
                 <td>
-                  <select ng-model='edit.object.group_id'>
+                  <select ng-model='object.group_id'>
                     <option
                       ng-repeat='group in groups'
-                      ng-selected='group.id==edit.object.group_id'
+                      ng-selected='group.id==object.group_id'
                       value='{{group.id}}'>
                       {{group.title}}
                     </option>
@@ -41,7 +41,7 @@
               </tr>
               <tr>
                 <td>Навигационный терминал</td>
-                <td><input value='{{edit.object.terminal_id}}'></td>
+                <td><input value='{{object.terminal_id}}'></td>
               </tr>
             </table>
             <div class='tab-pane' id='sensors'>
