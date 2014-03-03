@@ -61,6 +61,9 @@ angular.module('skuapso-init', []).service('skuapso-init', function() {
   var SkuapsoObject = function(props) {
     props.type = 'object';
     SkuapsoObject.superclass.constructor.call(this, props);
+    this.edit = function() {
+      console.debug('object edit');
+    };
   };
   inherit(SkuapsoObject, SkuapsoItem);
   Object.defineProperty(SkuapsoObject.prototype, 'title', {

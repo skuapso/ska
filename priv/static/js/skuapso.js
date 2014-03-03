@@ -25,13 +25,16 @@ var skuapsoModule = angular.module('skuapso',
     [
     'mgcrea.ngStrap',
     'restangular',
-    'skuapso-tree',
     'skuapso-init',
+    'skuapso-tree',
     'skuapso-map',
     'skuapso.test'
     ]);
 
 skuapsoModule
+.run(['$rootScope', 'skuapso-data', function(root, data) {
+  root.data = data;
+}])
 .controller('management', ['$rootScope', function(root) {
   root['toDateTime'] = new Date();
   root['fromDateTime'] = new Date();
