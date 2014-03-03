@@ -24,7 +24,6 @@ var $directive = function($type, $childs) {
 var skuapsoModule = angular.module('skuapso',
     [
     'ui.bootstrap',
-    'restangular',
     'skuapso-init',
     'skuapso-tree',
     'skuapso-map',

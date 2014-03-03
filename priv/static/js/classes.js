@@ -2,7 +2,6 @@
 
 angular.module('skuapso-init', [
     'ui.bootstrap',
-    'restangular'
 ])
 .service('skuapso-init', [
     '$rootScope',
@@ -130,7 +129,7 @@ angular.module('skuapso-init')
 .service('skuapso-objects-models',  function() {})
 
 .service('skuapso-data', [
-    'Restangular',
+    '$http',
     '$rootScope',
     'skuapso-init',
     'skuapso-objects',
@@ -138,7 +137,7 @@ angular.module('skuapso-init')
     'skuapso-groups',
     'skuapso-objects-models',
     function(http, root, init, objects, owners, groups, objectsModels) {
-      var rest = http.all(''), data = this, emptyArray = [], childs = {};
+      var data = this, emptyArray = [], childs = {};
 
       root.loaded = false;
       this.objects = objects;
@@ -153,7 +152,7 @@ angular.module('skuapso-init')
           ? childs[obj.type + '_' + obj.id]
           : emptyArray;
       };
-      rest.get('items').then(function(items) {
+      http.get('items').success(function(items) {
         var i = 0, l = items.length, item;
         for (i; i < l; i++) {
           item = data[items[i].type + 's'][items[i].id] = new init[items[i].type](items[i]);
