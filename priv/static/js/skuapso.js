@@ -23,7 +23,7 @@ var $directive = function($type, $childs) {
 
 var skuapsoModule = angular.module('skuapso',
     [
-    'mgcrea.ngStrap',
+    'ui.bootstrap',
     'restangular',
     'skuapso-init',
     'skuapso-tree',
@@ -34,6 +34,13 @@ var skuapsoModule = angular.module('skuapso',
 skuapsoModule
 .run(['$rootScope', 'skuapso-data', function(root, data) {
   root.data = data;
+}])
+.run(['$http', '$templateCache', function(http, templateCache) {
+  templateCache.put('template/timepicker/timepicker.html', "<span>" +
+    "<input type='text' class='timepicker' ng-model='hours' maxlength='2'>" +
+    "&nbsp;:&nbsp;" +
+    "<input type='text' class='timepicker' ng-model='minutes' maxlength='2'>" +
+    "</span>");
 }])
 .controller('management', ['$rootScope', function(root) {
   root['toDateTime'] = new Date();
@@ -77,6 +84,15 @@ skuapsoModule
 
   return def;
 }])
-.config(function($datepickerProvider) {$datepickerProvider.defaults.autoclose = true;})
-.config(function($timepickerProvider) {$timepickerProvider.defaults.autoclose = true;})
+.config(['datepickerConfig', function(config) {
+  config.showWeeks = false;
+  config.startingDay = 1;
+}])
+.config(['datepickerPopupConfig', function(config) {
+  config.dateFormat = 'shortDate';
+}])
+.config(['timepickerConfig', function(config) {
+  console.debug('%o', config);
+  config.showMeridian = false;
+}])
 ;

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skuapso-init', [
-    'mgcrea.ngStrap',
+    'ui.bootstrap',
     'restangular'
 ])
 .service('skuapso-init', [
@@ -75,12 +75,18 @@ angular.module('skuapso-init', [
           var scope = root.$new(true);
           scope.object = this;
           scope.groups = groups;
+          scope.$hide = function() {
+            console.debug('hide function');
+          };
           var modalOpts = {
-            template: '/static/tpl/skuapso/object.edit.tpl.html',
+            templateUrl: '/static/tpl/skuapso/object.edit.tpl.html',
             scope: scope,
+//            backdrop: 'static',
             show: true
           };
-          var modalWin = modal(modalOpts);
+          var modalWin = modal.open(modalOpts);
+          console.debug('modalwin: %o', modalWin);
+          modalWin.result.then(function() {console.debug('open')});
         };
         this.track = function() {
           var $from = filter('date')(root['fromDateTime'], 'psql');
