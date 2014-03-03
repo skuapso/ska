@@ -82,7 +82,7 @@ angular.module('skuapso-init', [
           };
           var modalWin = modal(modalOpts);
         };
-        this.show_track = function() {
+        this.track = function() {
           var $from = filter('date')(root['fromDateTime'], 'psql');
           var $to   = filter('date')(root['toDateTime'], 'psql');
           var $url = '/object/' + this.id + '/track/'
