@@ -24,6 +24,8 @@ angular.module('skuapso-map', [])
 .directive('skuapsoMap', ['skuapso-map', function(map) {
   var def = {};
 
+  def.scope = {};
+
   def.controller = ['$element', function(ele) {
     map.create(ele[0]);
   }];
