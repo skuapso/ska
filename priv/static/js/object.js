@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('skuapso-init')
+.service('skuapso-objects', ['skuapso-init-object', function() {}])
 .service('skuapso-init-object', [
     'skuapso-init',
     '$rootScope',
@@ -74,5 +75,4 @@ angular.module('skuapso-init')
       Class.object = SkuapsoObject;
     }]
 )
-.service('skuapso-objects',         ['skuapso-init-object', function() {}])
 ;

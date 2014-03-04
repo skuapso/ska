@@ -5,7 +5,6 @@ angular.module('skuapso-init', [
 ])
 .service('skuapso-init', function() {
     this.inherit = function(Child, Parent) {
-      console.debug('parent is %o: %o', Child, Parent);
       var F = function() {};
       F.prototype = Parent.prototype;
       Child.prototype = new F();
