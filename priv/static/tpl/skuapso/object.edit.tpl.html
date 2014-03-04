@@ -2,52 +2,58 @@
   <div class="modal-header">
     Редактирование транспортного средства<br>
     <b>{{object.title}}</b>
-    <button type="button" class="close" ng-click="close()">&times;</button>
+    <button type="button" class="close" ng-click="cancel()">
+      <i class='glyphicon glyphicon-remove'></i>
+    </button>
   </div>
   <div class="modal-body">
-    <ul class='nav nav-tabs'>
-      <li class='active'><a href='#common' data-toggle='tab'>Общее</a></li>
-      <li><a href='#sensors' data-toggle='tab'>Датчики</a></li>
-    </ul>
-    <div class='tab-content'>
-      <table class='tab-pane active' id='common'>
-        <tr>
-          <td>Гос. номер</td>
-          <td><input type='text' value='{{object.no}}'></td>
-        </tr>
-        <tr>
-          <td>Модель</td>
-          <td>
-            <input value='{{object.model_id}}'></td>
-        </tr>
-        <tr>
-          <td>Специализация</td>
-          <td><input value='{{object.specialization_id}}'></td>
-        </tr>
-        <tr>
-          <td>Группа</td>
-          <td>
-            <select ng-model='object.group_id'>
-              <option
-                ng-repeat='group in groups'
-                ng-selected='group.id==object.group_id'
-                value='{{group.id}}'>
-                {{group.title}}
-              </option>
-            </select>
-        </tr>
-        <tr>
-          <td>Навигационный терминал</td>
-          <td><input value='{{object.terminal_id}}'></td>
-        </tr>
-      </table>
-      <div class='tab-pane' id='sensors'>
-        Здесь должны быть датчики
-      </div>
-    </div>
+    <tabset>
+      <tab heading='Общее'>
+        <table class='tab-pane active' id='common'>
+          <tr>
+            <td>Гос. номер</td>
+            <td><input ng-model='object.no'></td>
+          </tr>
+          <tr>
+            <td>Модель</td>
+            <td>
+              <input ng-model='object.model_id'></td>
+          </tr>
+          <tr>
+            <td>Специализация</td>
+            <td><input ng-model='object.specialization_id'></td>
+          </tr>
+          <tr>
+            <td>Группа</td>
+            <td>
+              <input ng-model='object.group_id'><br>
+              <select ng-model='object.group'
+                ng-options='group.title for (id,group) in groups'>
+  <!--              <option
+                  ng-repeat='group in groups'
+                  ng-selected='group.id==object.group_id'
+                  value='{{group.id}}'>
+                  {{group.title}}
+                </option> -->
+              </select>
+          </tr>
+          <tr>
+            <td>Навигационный терминал</td>
+            <td><input ng-model='object.terminal_id'></td>
+          </tr>
+        </table>
+      </tab>
+      <tab heading='Датчики'>
+        <div class='tab-content'>
+          <div class='tab-pane' id='sensors'>
+            Здесь должны быть датчики
+          </div>
+        </div>
+      </tab>
+    </tabset>
   </div>
   <div class="modal-footer">
-    <button type='button' class='btn btn-primary'>Save</button>
-    <button type="button" class="btn btn-default" ng-click="close()">Close</button>
+    <button type='button' class='btn btn-primary' ng-click="save()">Save</button>
+    <button type="button" class="btn btn-default" ng-click="cancel()">Close</button>
   </div>
 </form>
