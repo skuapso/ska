@@ -62,6 +62,9 @@ json(<<"items">>, []) ->
       " union all select row_to_json(objects_models) from ("
         "select *,'object_model' as \"type\" from objects.models"
       ") objects_models"
+      " union all select row_to_json(objects_specializations) from ("
+        "select *,'specialization' as \"type\" from objects.specializations"
+      ") objects_specializations"
     ") S",
   sql(execute, {Query, []});
 
