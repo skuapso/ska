@@ -5,24 +5,25 @@ angular.module('skuapso-init')
 .service('skuapso-init-object', [
     'skuapso-init',
     '$rootScope',
-    'skuapso-groups',
     '$modal',
     '$filter',
     '$http',
-    function(Class, root, groups, modal, filter, http) {
+    function(Class, root, modal, filter, http) {
       var SkuapsoObject = function(props) {
         props.type = 'object';
         SkuapsoObject.superclass.constructor.call(this, props);
+
         this.edit = function() {
           var scope = root.$new(true);
-          scope.object = this;
-          scope.groups = groups;
+          scope.title = this.title;
+          scope.data = Class.data;
+          scope.object = new Class.object(this);
           var modalActions = ['$scope', '$modalInstance', function(scope, modal) {
             scope.cancel = function() {
               modal.dismiss('canceled');
             };
             scope.save = function() {
-              console.debug('%o', scope);
+              console.debug('%o', angular.toJson(scope.object));
             };
           }];
           var modalOpts = {
@@ -35,6 +36,7 @@ angular.module('skuapso-init')
           var modalWin = modal.open(modalOpts);
           modalWin.result.then(function() {console.debug('result')});
         };
+
         this.track = function() {
           var $from = filter('date')(root['fromDateTime'], 'psql');
           var $to   = filter('date')(root['toDateTime'], 'psql');
@@ -55,7 +57,7 @@ angular.module('skuapso-init')
       Class.inherit(SkuapsoObject, Class.Item);
       Object.defineProperty(SkuapsoObject.prototype, 'title', {
         get: function() {
-          return this.model + ' ' + this.no;
+          return this.model.title + ' ' + this.no;
         }
       });
       Object.defineProperty(SkuapsoObject.prototype, 'parent', {
@@ -66,12 +68,21 @@ angular.module('skuapso-init')
       });
       Object.defineProperty(SkuapsoObject.prototype, 'group', {
         get: function() {
-          return groups[this.group_id];
+          return Class.data.groups[this.group_id];
         },
         set: function(group) {
           this.group_id = group.id;
         }
       });
+      Object.defineProperty(SkuapsoObject.prototype, 'model', {
+        get: function() {
+          return Class.data.object_models[this.model_id];
+        },
+        set: function(model) {
+          this.model_id = model.id;
+        }
+      });
+
       Class.object = SkuapsoObject;
     }]
 )

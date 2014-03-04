@@ -1,7 +1,7 @@
 <form>
   <div class="modal-header">
     Редактирование транспортного средства<br>
-    <b>{{object.title}}</b>
+    <b>{{title}}</b>
     <button type="button" class="close" ng-click="cancel()">
       <i class='glyphicon glyphicon-remove'></i>
     </button>
@@ -17,31 +17,38 @@
           <tr>
             <td>Модель</td>
             <td>
-              <input ng-model='object.model_id'></td>
+              <select ng-model='object.model'
+                ng-options='model.title for (id,model) in data.object_models'>
+              </select>
+            </td>
           </tr>
           <tr>
             <td>Специализация</td>
-            <td><input ng-model='object.specialization_id'></td>
+            <td>
+              <select ng-model='object.specialization'
+                ng-options='specialization.title for (id,specialization) in data.specializations'>
+                <option></option>
+              </select>
+            </td>
           </tr>
           <tr>
             <td>Группа</td>
             <td>
               <select ng-model='object.group'
-                ng-options='group.title for (id,group) in groups'>
+                ng-options='group.title for (id,group) in data.groups'>
               </select>
+            </td>
           </tr>
           <tr>
             <td>Навигационный терминал</td>
-            <td><input ng-model='object.terminal_id'></td>
+            <td>
+              <input ng-model='object.terminal_id'>
+            </td>
           </tr>
         </table>
       </tab>
       <tab heading='Датчики'>
-        <div class='tab-content'>
-          <div class='tab-pane' id='sensors'>
-            Здесь должны быть датчики
-          </div>
-        </div>
+        Здесь должны быть датчики
       </tab>
     </tabset>
   </div>

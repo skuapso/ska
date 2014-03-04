@@ -108,6 +108,7 @@ angular.module('skuapso-init')
       this.owners = owners;
       this.groups = groups;
       this.object_models = objectsModels;
+      init.data = this;
       this.get = function(obj) {
         return this[obj.type + 's'][obj.id];
       };
