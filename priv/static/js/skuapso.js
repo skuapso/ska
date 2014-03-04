@@ -92,7 +92,6 @@ skuapsoModule
   config.dateFormat = 'shortDate';
 }])
 .config(['timepickerConfig', function(config) {
-  console.debug('%o', config);
   config.showMeridian = false;
 }])
 ;
