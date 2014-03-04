@@ -29,12 +29,16 @@
   <div sk-if='loaded'>
     <div ng-controller='management'>
       <span>
-        <input ng-model='fromDateTime' data-max='{{toDateTime}}' datepicker-popup type='text'>&nbsp;
+        <input ng-model='fromDateTime' data-max='{{toDateTime}}' datepicker-popup type='text'>
+        <i class='glyphicon glyphicon-calendar'></i>
+        &nbsp;
         <timepicker ng-model='fromDateTime' class='timepicker'>
       </span>
-      &gt;&gt;
+      <i class='glyphicon glyphicon-share-alt'></i>
       <span>
-        <input ng-model='toDateTime' data-min='{{fromDateTime}}' datepicker-popup type='text'>&nbsp;
+        <input ng-model='toDateTime' data-min='{{fromDateTime}}' datepicker-popup type='text'>
+        <i class='glyphicon glyphicon-calendar'></i>
+        &nbsp;
         <timepicker ng-model='toDateTime' class='timepicker'>
       </span>
       <span>
