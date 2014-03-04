@@ -28,7 +28,12 @@ angular.module('skuapso-init', [
 })
 .service('skuapso-init-object', [
     'skuapso-init',
-    function(Class) {
+    '$rootScope',
+    'skuapso-groups',
+    '$modal',
+    '$filter',
+    '$http',
+    function(Class, root, groups, modal, filter, http) {
       var SkuapsoObject = function(props) {
         props.type = 'object';
         SkuapsoObject.superclass.constructor.call(this, props);
