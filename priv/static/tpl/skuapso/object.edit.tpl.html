@@ -26,15 +26,8 @@
           <tr>
             <td>Группа</td>
             <td>
-              <input ng-model='object.group_id'><br>
               <select ng-model='object.group'
                 ng-options='group.title for (id,group) in groups'>
-  <!--              <option
-                  ng-repeat='group in groups'
-                  ng-selected='group.id==object.group_id'
-                  value='{{group.id}}'>
-                  {{group.title}}
-                </option> -->
               </select>
           </tr>
           <tr>
