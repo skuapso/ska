@@ -3,70 +3,32 @@
 angular.module('skuapso-init', [
     'ui.bootstrap',
 ])
-.service('skuapso-init', [
-    '$rootScope',
-    'skuapso-groups',
-    '$modal',
-    '$http',
-    '$filter',
-    function(root, groups, modal, http, filter) {
-      var inherit = function(Child, Parent) {
-        var F = function() {};
-        F.prototype = Parent.prototype;
-        Child.prototype = new F();
-        Child.prototype.constructor = Child;
-        Child.superclass = Parent.prototype;
-      };
+.service('skuapso-init', function() {
+    this.inherit = function(Child, Parent) {
+      console.debug('parent is %o: %o', Child, Parent);
+      var F = function() {};
+      F.prototype = Parent.prototype;
+      Child.prototype = new F();
+      Child.prototype.constructor = Child;
+      Child.superclass = Parent.prototype;
+    };
 
-      var SkuapsoItem = function(props) {
-        angular.extend(this, props);
-      };
+    this.Item = function(props) {
+      angular.extend(this, props);
+    };
 
-      var SkuapsoSimpleType = function(type) {
-        var F = function(props) {
-          props.type = type;
-          SkuapsoSimpleItem.superclass.constructor.call(this, props);
-        };
-        inherit(F, SkuapsoItem);
-        return F;
+    this.SimpleType = function(type) {
+      var F = function(props) {
+        props.type = type;
+        this.Item.superclass.constructor.call(this, props);
       };
-
-      var SkuapsoOwner = function(props) {
-        props.type = 'owner';
-        SkuapsoOwner.superclass.constructor.call(this, props);
-      };
-      inherit(SkuapsoOwner, SkuapsoItem);
-      Object.defineProperty(SkuapsoOwner.prototype, 'parent', {
-        get: function() {
-          return this.parent_id ? {type: 'owner', id: this.parent_id}
-          : {type: 'owner', id: null};
-        }
-      });
-
-      var SkuapsoGroup = function(props) {
-        props.type = 'group';
-        SkuapsoGroup.superclass.constructor.call(this, props);
-      };
-      inherit(SkuapsoGroup, SkuapsoItem);
-      Object.defineProperty(SkuapsoGroup.prototype, 'parent', {
-        get: function() {
-          return this.parent_id ? {type: 'group', id: this.parent_id}
-          : {type: 'owner', id: this.owner_id};
-        }
-      });
-
-      var SkuapsoObjectModel = function(props) {
-        props.type = 'object_model';
-        SkuapsoObjectModel.superclass.constructor.call(this, props);
-      };
-      inherit(SkuapsoObjectModel, SkuapsoItem);
-
-      var SkuapsoSpecialization = function(props) {
-        props.type = 'specialization';
-        SkupasoSpecialization.superclass.constructor.call(this, props);
-      };
-      inherit(SkuapsoSpecialization, SkuapsoItem);
-
+      inherit(F, SkuapsoItem);
+      return F;
+    };
+})
+.service('skuapso-init-object', [
+    'skuapso-init',
+    function(Class) {
       var SkuapsoObject = function(props) {
         props.type = 'object';
         SkuapsoObject.superclass.constructor.call(this, props);
@@ -74,18 +36,23 @@ angular.module('skuapso-init', [
           var scope = root.$new(true);
           scope.object = this;
           scope.groups = groups;
-          scope.$hide = function() {
-            console.debug('hide function');
-          };
+          var modalActions = ['$scope', '$modalInstance', function(scope, modal) {
+            scope.cancel = function() {
+              modal.dismiss('canceled');
+            };
+            scope.save = function() {
+              console.debug('%o', scope);
+            };
+          }];
           var modalOpts = {
             templateUrl: '/static/tpl/skuapso/object.edit.tpl.html',
             scope: scope,
-//            backdrop: 'static',
+            backdrop: 'static',
+            controller: modalActions,
             show: true
           };
           var modalWin = modal.open(modalOpts);
-          console.debug('modalwin: %o', modalWin);
-          modalWin.result.then(function() {console.debug('open')});
+          modalWin.result.then(function() {console.debug('result')});
         };
         this.track = function() {
           var $from = filter('date')(root['fromDateTime'], 'psql');
@@ -104,7 +71,7 @@ angular.module('skuapso-init', [
           });
         }
       };
-      inherit(SkuapsoObject, SkuapsoItem);
+      Class.inherit(SkuapsoObject, Class.Item);
       Object.defineProperty(SkuapsoObject.prototype, 'title', {
         get: function() {
           return this.model + ' ' + this.no;
@@ -116,17 +83,84 @@ angular.module('skuapso-init', [
           : {type: 'owner', id: this.owner_id};
         }
       });
-      this.object = SkuapsoObject;
-      this.group = SkuapsoGroup;
-      this.owner = SkuapsoOwner;
-      this.object_model = SkuapsoObjectModel;
-}]);
+      Object.defineProperty(SkuapsoObject.prototype, 'group', {
+        get: function() {
+          return groups[this.group_id];
+        },
+        set: function(group) {
+          this.group_id = group.id;
+        }
+      });
+      Class.object = SkuapsoObject;
+    }]
+)
+.service('skuapso-init-group', [
+    'skuapso-init',
+    function(Class) {
+      var SkuapsoGroup = function(props) {
+        props.type = 'group';
+        SkuapsoGroup.superclass.constructor.call(this, props);
+      };
+      Class.inherit(SkuapsoGroup, Class.Item);
+      Object.defineProperty(SkuapsoGroup.prototype, 'parent', {
+        get: function() {
+          return this.parent_id ? {type: 'group', id: this.parent_id}
+          : {type: 'owner', id: this.owner_id};
+        }
+      });
+
+      Class.group = SkuapsoGroup;
+    }]
+)
+.service('skuapso-init-owner', [
+    'skuapso-init',
+    function(Class) {
+      var SkuapsoOwner = function(props) {
+        props.type = 'owner';
+        SkuapsoOwner.superclass.constructor.call(this, props);
+      };
+      Class.inherit(SkuapsoOwner, Class.Item);
+      Object.defineProperty(SkuapsoOwner.prototype, 'parent', {
+        get: function() {
+          return this.parent_id ? {type: 'owner', id: this.parent_id}
+          : {type: 'owner', id: null};
+        }
+      });
+
+      Class.owner = SkuapsoOwner;
+    }]
+)
+.service('skuapso-init-object-model', [
+    'skuapso-init',
+    function(Class) {
+      var SkuapsoObjectModel = function(props) {
+        props.type = 'object_model';
+        SkuapsoObjectModel.superclass.constructor.call(this, props);
+      };
+      Class.inherit(SkuapsoObjectModel, Class.Item);
+
+      Class.object_model = SkuapsoObjectModel;
+    }]
+)
+.service('skuapso-init-specialization', [
+    'skuapso-init',
+    function(Class) {
+
+      var SkuapsoSpecialization = function(props) {
+        props.type = 'specialization';
+        SkupasoSpecialization.superclass.constructor.call(this, props);
+      };
+      Class.inherit(SkuapsoSpecialization, Class.Item);
+
+      Class.specialization = SkuapsoSpecialization;
+    }]
+);
 
 angular.module('skuapso-init')
-.service('skuapso-objects',         function() {})
-.service('skuapso-owners',          function() {})
-.service('skuapso-groups',          function() {})
-.service('skuapso-objects-models',  function() {})
+.service('skuapso-objects',         ['skuapso-init-object', function() {}])
+.service('skuapso-owners',          ['skuapso-init-owner', function() {}])
+.service('skuapso-groups',          ['skuapso-init-group', function() {}])
+.service('skuapso-objects-models',  ['skuapso-init-object-model', function() {}])
 
 .service('skuapso-data', [
     '$http',
