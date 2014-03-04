@@ -36,6 +36,7 @@ skuapsoModule
 }])
 .run(['$http', '$templateCache', function(http, templateCache) {
   templateCache.put('template/timepicker/timepicker.html', "<span>" +
+    "<i class='glyphicon glyphicon-time'></i>&nbsp;" +
     "<input type='text' class='timepicker' ng-model='hours' maxlength='2'>" +
     "&nbsp;:&nbsp;" +
     "<input type='text' class='timepicker' ng-model='minutes' maxlength='2'>" +
