@@ -100,7 +100,8 @@ angular.module('skuapso-init')
     'skuapso-owners',
     'skuapso-groups',
     'skuapso-objects-models',
-    function(http, root, init, objects, owners, groups, objectsModels) {
+    '$filter',
+    function(http, root, init, objects, owners, groups, objectsModels, filter) {
       var data = this, emptyArray = [], childs = {};
 
       root.loaded = false;
@@ -133,6 +134,9 @@ angular.module('skuapso-init')
                 : emptyArray;
             }
           });
+        }
+        for (i in childs) {
+          childs[i] = filter('orderBy')(childs[i], 'title');
         }
         root.loaded = true;
       });

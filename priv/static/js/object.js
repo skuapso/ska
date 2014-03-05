@@ -71,7 +71,7 @@ angular.module('skuapso-init')
           return Class.data.groups[this.group_id];
         },
         set: function(group) {
-          this.group_id = group.id;
+          this.group_id = group ? group.id : null;
         }
       });
       Object.defineProperty(SkuapsoObject.prototype, 'model', {
