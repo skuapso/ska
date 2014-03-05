@@ -94,4 +94,14 @@ skuapsoModule
 .config(['timepickerConfig', function(config) {
   config.showMeridian = false;
 }])
+.filter('toArray', function() {
+  return function(input) {
+    var i, output = [];
+    console.debug('input is %o', input);
+    for (i in input) {
+      output.push(input[i]);
+    }
+    return output;
+  }
+})
 ;
