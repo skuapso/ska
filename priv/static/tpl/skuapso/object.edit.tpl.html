@@ -1,61 +1,59 @@
-<form>
-  <div class="modal-header">
-    Редактирование транспортного средства<br>
-    <b>{{title}}</b>
-    <button type="button" class="close" ng-click="cancel()">
-      <i class='glyphicon glyphicon-remove'></i>
-    </button>
-  </div>
-  <div class="modal-body">
-    <tabset>
-      <tab heading='Общее'>
-        <table class='tab-pane active' id='common'>
-          <tr>
-            <td>Гос. номер</td>
-            <td><input ng-model='object.no'></td>
-          </tr>
-          <tr>
-            <td>Модель</td>
-            <td>
-              <select ng-model='object.model'
-                ng-options='model.title for (id,model) in data.object_models'>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td>Специализация</td>
-            <td>
-              <select ng-model='object.specialization'
-                ng-options='specialization.title for (id,specialization) in data.specializations'>
-                <option></option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td>Группа</td>
-            <td>
-              <select ng-model='object.group'
-                ng-options='group.title for (id,group) in data.groups'>
-              </select>
+<div class="modal-header">
+  Редактирование транспортного средства<br>
+  <b>{{title}}</b>
+  <button type="button" class="close" ng-click="cancel()">
+    <i class='glyphicon glyphicon-remove'></i>
+  </button>
+</div>
+<div class="modal-body">
+  <tabset>
+    <tab heading='Общее'>
+      <table>
+        <tr>
+          <td>Гос. номер</td>
+          <td><input ng-model='object.no'></td>
+        </tr>
+        <tr>
+          <td>Модель</td>
+          <td>
+            <select ng-model='object.model'
+              ng-options='model.title for (id,model) in data.object_models'>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Специализация</td>
+          <td>
+            <select ng-model='object.specialization'
+              ng-options='specialization.title for (id,specialization) in data.specializations'>
+              <option></option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Группа</td>
+          <td>
+            <select ng-model='object.group'
+              ng-options='group.title for (id,group) in data.groups'>
+            </select>
 <!--              <input ng-model='object.group' typeahead-wait-ms=250 typeahead-editable=false
-                typeahead='group as group.title for group in data.groups | toArray | orderBy:title | filter:{title:$viewValue} | limitTo:6'> -->
-            </td>
-          </tr>
-          <tr>
-            <td>Навигационный терминал</td>
-            <td>
-              <input ng-model='object.terminal_id'>
-            </td>
-          </tr>
-        </table>
-      </tab>
-      <tab heading='Датчики'>
-        Здесь должны быть датчики
-      </tab>
-    </tabset>
-  </div>
-  <div class="modal-footer">
-    <button type='button' class='btn btn-primary' ng-click="save()">Save</button>
-    <button type="button" class="btn btn-default" ng-click="cancel()">Close</button>
-  </div>
-</form>
+              typeahead='group as group.title for group in data.groups | toArray | orderBy:title | filter:{title:$viewValue} | limitTo:6'> -->
+          </td>
+        </tr>
+        <tr>
+          <td>Навигационный терминал</td>
+          <td>
+            <input ng-model='object.terminal_id'>
+          </td>
+        </tr>
+      </table>
+    </tab>
+    <tab heading='Датчики'>
+      Здесь должны быть датчики
+    </tab>
+  </tabset>
+</div>
+<div class="modal-footer">
+  <button type='button' class='btn btn-primary' ng-click="save()">Save</button>
+  <button type="button" class="btn btn-default" ng-click="cancel()">Close</button>
+</div>

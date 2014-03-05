@@ -27,10 +27,10 @@ angular.module('skuapso-init')
             };
           }];
           var modalOpts = {
-            templateUrl: '/static/tpl/skuapso/object.edit.tpl.html',
             scope: scope,
-            backdrop: 'static',
             controller: modalActions,
+            templateUrl: '/static/tpl/skuapso/object.edit.tpl.html',
+            backdrop: 'static',
             show: true
           };
           var modalWin = modal.open(modalOpts);
