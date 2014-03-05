@@ -37,6 +37,8 @@
               <select ng-model='object.group'
                 ng-options='group.title for (id,group) in data.groups'>
               </select>
+<!--              <input ng-model='object.group' typeahead-wait-ms=250 typeahead-editable=false
+                typeahead='group as group.title for group in data.groups | toArray | orderBy:title | filter:{title:$viewValue} | limitTo:6'> -->
             </td>
           </tr>
           <tr>
