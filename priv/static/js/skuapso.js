@@ -104,4 +104,7 @@ skuapsoModule
     return output;
   }
 })
+.config(['$modalProvider', function(config) {
+  config.options.backdrop = 'static';
+}])
 ;

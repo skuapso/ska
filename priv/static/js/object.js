@@ -29,9 +29,7 @@ angular.module('skuapso-init')
           var modalOpts = {
             scope: scope,
             controller: modalActions,
-            templateUrl: '/static/tpl/skuapso/object.edit.tpl.html',
-            backdrop: 'static',
-            show: true
+            templateUrl: '/static/tpl/skuapso/object.edit.tpl.html'
           };
           var modalWin = modal.open(modalOpts);
           modalWin.result.then(function() {console.debug('result')});
@@ -57,7 +55,11 @@ angular.module('skuapso-init')
       Class.inherit(SkuapsoObject, Class.Item);
       Object.defineProperty(SkuapsoObject.prototype, 'title', {
         get: function() {
-          return this.model.title + ' ' + this.no;
+          var title = this.no;
+          title = this.model ? this.model.title + ' ' + title : title;
+          title = this.specialization ? this.specialization.title + ' ' + title : title;
+          title = this.terminal ? title : '* ' + title;
+          return title;
         }
       });
       Object.defineProperty(SkuapsoObject.prototype, 'parent', {
@@ -80,6 +82,22 @@ angular.module('skuapso-init')
         },
         set: function(model) {
           this.model_id = model.id;
+        }
+      });
+      Object.defineProperty(SkuapsoObject.prototype, 'specialization', {
+        get: function() {
+          return Class.data.specializations[this.specialization_id];
+        },
+        set: function(specialization) {
+          this.specialization_id = specialization ? specialization.id : null;
+        }
+      });
+      Object.defineProperty(SkuapsoObject.prototype, 'terminal', {
+        get: function() {
+          return Class.data.terminals[this.terminal_id];
+        },
+        set: function(terminal) {
+          this.terminal_id = terminal ? terminal.id : null;
         }
       });
 

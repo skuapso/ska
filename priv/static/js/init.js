@@ -28,13 +28,15 @@ angular.module('skuapso-init', [
 .service('skuapso-data', [
     '$http',
     '$rootScope',
+    '$filter',
     'skuapso-init',
     'skuapso-objects',
     'skuapso-owners',
     'skuapso-groups',
     'skuapso-objects-models',
-    '$filter',
-    function(http, root, init, objects, owners, groups, objectsModels, filter) {
+    'skuapso-specializations',
+    'skuapso-terminals',
+    function(http, root, filter, init, objects, owners, groups, objectsModels, spec, terminals) {
       var data = this, emptyArray = [], childs = {};
 
       root.loaded = false;
@@ -42,6 +44,8 @@ angular.module('skuapso-init', [
       this.owners = owners;
       this.groups = groups;
       this.object_models = objectsModels;
+      this.specializations = spec;
+      this.terminals = terminals;
       init.data = this;
       this.get = function(obj) {
         return this[obj.type + 's'][obj.id];

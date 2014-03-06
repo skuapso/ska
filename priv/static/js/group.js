@@ -4,10 +4,55 @@ angular.module('skuapso-init')
 .service('skuapso-groups', ['skuapso-init-group', function() {}])
 .service('skuapso-init-group', [
     'skuapso-init',
-    function(Class) {
+    '$rootScope',
+    '$modal',
+    '$http',
+    function(Class, root, modal, http) {
       var SkuapsoGroup = function(props) {
         props.type = 'group';
         SkuapsoGroup.superclass.constructor.call(this, props);
+
+        this.edit = function() {
+          var scope = root.$new(true), modalOpts, modalWin, modalActions, diff;
+          scope.title = this.title;
+          scope.data = Class.data;
+          scope.group = new Class.group(this);
+          scope.button = {
+            save: 'Сохранить',
+            close: 'Отменить'
+          };
+
+          scope.diff = function() {
+            var id, diff = null;
+            for (id in this.group) {
+              if (this.group[id] != this.data.groups[this.group.id][id]) {
+                if (angular.isFunction(this.group[id])) continue;
+                if (!diff) diff = {};
+                diff[id] = this.group[id];
+              }
+            }
+            return diff;
+          };
+
+          modalActions = ['$scope', '$modalInstance', function(scope, modal) {
+            scope.cancel = function() {
+              modal.dismiss('canceled');
+            };
+            scope.save = function() {
+              console.debug('saving %o', angular.toJson(scope.group));
+              console.debug('diff is %o', this.diff());
+              http.post('/group/' + this.group.id, Bert.encode(this.diff()));
+            };
+          }];
+
+          modalOpts = {
+            scope: scope,
+            controller: modalActions,
+            templateUrl: '/static/tpl/skuapso/group.edit.tpl.html'
+          };
+
+          modalWin = modal.open(modalOpts);
+        }
       };
       Class.inherit(SkuapsoGroup, Class.Item);
       Object.defineProperty(SkuapsoGroup.prototype, 'parent', {
@@ -16,7 +61,16 @@ angular.module('skuapso-init')
           : {type: 'owner', id: this.owner_id};
         }
       });
+      Object.defineProperty(SkuapsoGroup.prototype, 'parent_group', {
+        get: function() {
+          return Class.data.groups[this.parent_id];
+        },
+        set: function(parentGroup) {
+          this.parent_id = parentGroup ? parentGroup.id : null;
+        }
+      });
 
       Class.group = SkuapsoGroup;
     }]
 )
+;

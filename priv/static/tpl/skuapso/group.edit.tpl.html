@@ -1,0 +1,36 @@
+<div class="modal-header">
+  Редактирование группы<br>
+  <b>{{title}}</b>
+  <button type="button" class="close" ng-click="cancel()" ng-disabled='disabled'>
+    <i class='glyphicon glyphicon-remove'></i>
+  </button>
+</div>
+<div class="modal-body">
+  <tabset>
+    <tab heading='Общее'>
+      <table>
+        <tr>
+          <td>Название</td>
+          <td><input ng-model='group.title'></td>
+        </tr>
+        <tr>
+          <td>Родительская группа</td>
+          <td>
+            <select ng-model='group.parent_group'
+              ng-options='gr.title for (id,gr) in data.groups'>
+              <option value=''></option>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </tab>
+    <tab heading='Репликация'>
+    </tab>
+  </tabset>
+</div>
+<div class="modal-footer">
+  <button type='button' class='btn btn-primary'
+    ng-click="save()" ng-disabled='disabled'>{{button.save}}</button>
+  <button type="button" class="btn btn-default"
+    ng-click="cancel()" ng-disabled='disabled'>{{button.close}}</button>
+</div>
