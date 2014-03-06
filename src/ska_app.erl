@@ -43,5 +43,5 @@ dispatch_rules() ->
               {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
           ]},
           {<<"/ws/[...]">>, bullet_handler, [{handler, ska_ws}]},
-          {'_', ska_rest, []}
+          {'_', ska_json, []}
           ]}]).

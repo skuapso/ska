@@ -1,6 +1,6 @@
 -module(ska_object).
 
--export([json/1]).
+-export([json/2]).
 
 -include_lib("logger/include/log.hrl").
 
@@ -31,7 +31,7 @@ track_sql(ValCondition, Join, AddCondition) ->
   ") S1"
   .
 
-json([ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
+json(<<"GET">>, [ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
   {ValCondition, Join, AddCondition, AddValues} = track_condition(Mod),
   Query = track_sql(ValCondition, Join, AddCondition),
   TracksJson = ska_rest:sql(execute, {Query, [
