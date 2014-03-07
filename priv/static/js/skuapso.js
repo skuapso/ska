@@ -33,6 +33,11 @@ var skuapsoModule = angular.module('skuapso',
 skuapsoModule
 .run(['$rootScope', 'skuapso-data', function(root, data) {
   root.data = data;
+  root.controls = {};
+  root.controls.toDateTime = new Date();
+  root.controls.fromDateTime = new Date();
+  root.controls.fromDateTime.setDate(root.controls.toDateTime.getDate() - 1);
+  root.controls.sensor = true;
 }])
 .run(['$http', '$templateCache', function(http, templateCache) {
   templateCache.put('template/timepicker/timepicker.html', "<span>" +
@@ -42,11 +47,8 @@ skuapsoModule
     "<input type='text' class='timepicker' ng-model='minutes' maxlength='2'>" +
     "</span>");
 }])
-.controller('management', ['$rootScope', function(root) {
-  root['toDateTime'] = new Date();
-  root['fromDateTime'] = new Date();
-  root['fromDateTime'].setDate(root['toDateTime'].getDate() - 1);
-  root['sensor'] = true;
+.controller('management', ['$rootScope', '$scope', function(root, scope) {
+  scope.controls = root.controls;
 }])
 .controller('listRoot', ['$scope', 'skuapso-data', function(scope, data) {
   var id;

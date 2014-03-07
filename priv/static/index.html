@@ -24,20 +24,24 @@
   <div sk-if='loaded'>
     <div ng-controller='management'>
       <span>
-        <input ng-model='fromDateTime' data-max='{{toDateTime}}' datepicker-popup type='text'>
+        <input datepicker-popup type='text'
+          ng-model='controls.fromDateTime'
+          data-max='{{controls.toDateTime}}'>
         <i class='glyphicon glyphicon-calendar'></i>
         &nbsp;
-        <timepicker ng-model='fromDateTime' class='timepicker'>
+        <timepicker ng-model='controls.fromDateTime' class='timepicker'>
       </span>
       <i class='glyphicon glyphicon-share-alt'></i>
       <span>
-        <input ng-model='toDateTime' data-min='{{fromDateTime}}' datepicker-popup type='text'>
+        <input datepicker-popup type='text'
+          ng-model='controls.toDateTime'
+          data-min='{{controls.fromDateTime}}'>
         <i class='glyphicon glyphicon-calendar'></i>
         &nbsp;
-        <timepicker ng-model='toDateTime' class='timepicker'>
+        <timepicker ng-model='controls.toDateTime' class='timepicker'>
       </span>
       <span>
-        &nbsp;<input type='checkbox' ng-model='sensor'>&nbsp;Датчик&nbsp;
+        &nbsp;<input type='checkbox' ng-model='controls.sensor'>&nbsp;Датчик&nbsp;
       </span>
     </div>
     <div class='objects-list' ng-controller='listRoot'>

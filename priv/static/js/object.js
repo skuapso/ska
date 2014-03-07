@@ -36,11 +36,11 @@ angular.module('skuapso-init')
         };
 
         this.track = function() {
-          var $from = filter('date')(root['fromDateTime'], 'psql');
-          var $to   = filter('date')(root['toDateTime'], 'psql');
+          var $from = filter('date')(root.controls.fromDateTime, 'psql');
+          var $to   = filter('date')(root.controls.toDateTime, 'psql');
           var $url = '/object/' + this.id + '/track/'
                     + $from + '/' + $to;
-          if (root['sensor']) $url += '/sensor/1/>/70';
+          if (root.controls.sensor) $url += '/sensor/1/>/70';
           http.get($url).success(function(data) {
             var i, line, lines;
             for (i = 0; i < data.length; i++) {
