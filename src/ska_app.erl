@@ -29,6 +29,9 @@ dispatch_rules() ->
           {"/favicon.ico", cowboy_static, {priv_file, ska, "static/favicon.ico",
                                 [{mimetypes, cow_mimetypes, web}]
           }},
+          {"/bullet.js", cowboy_static, {priv_file, bullet, "bullet.js",
+                                [{mimetypes, cow_mimetypes, web}]
+          }},
           {"/static/[...]", cowboy_static, {priv_dir, ska, "static",
                                 [{mimetypes, cow_mimetypes, web}]
           }},

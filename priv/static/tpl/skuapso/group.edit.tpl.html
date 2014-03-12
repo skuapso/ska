@@ -17,7 +17,7 @@
           <td>Родительская группа</td>
           <td>
             <select ng-model='group.parent_group'
-              ng-disabled='true'
+              ng-disabled='disabled'
               ng-options='gr.title for (id,gr) in data.groups'>
               <option value=''></option>
             </select>

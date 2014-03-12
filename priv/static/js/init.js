@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('skuapso-init', [
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'websocket.bullet'
 ])
 .service('skuapso-init', [function() {
     this.inherit = function(Child, Parent) {
@@ -34,6 +35,7 @@ angular.module('skuapso-init', [
     '$http',
     '$rootScope',
     '$filter',
+    'bullet',
     'skuapso-init',
     'skuapso-objects',
     'skuapso-owners',
@@ -41,9 +43,11 @@ angular.module('skuapso-init', [
     'skuapso-objects-models',
     'skuapso-specializations',
     'skuapso-terminals',
-    function(http, root, filter, init, objects, owners, groups, objectsModels, spec, terminals) {
+    function(http, root, filter, bullet,
+      init, objects, owners, groups, objectsModels, spec, terminals) {
       var data = this, emptyArray = [], childs = {};
 
+      console.debug('bullet is %o', bullet);
       root.loaded = false;
       this.objects = objects;
       this.owners = owners;
@@ -82,6 +86,11 @@ angular.module('skuapso-init', [
         }
         root.loaded = true;
       });
+      bullet.on = {
+        message: function(e) {
+          console.debug("data is %o", e.data);
+        }
+      };
     }]
 )
 ;
