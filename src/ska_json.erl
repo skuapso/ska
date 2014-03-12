@@ -8,7 +8,7 @@
 -export([charsets_provided/2]).
 
 -export([parse/2]).
--export([json/3]).
+-export([route/3]).
 -export([sql/2]).
 
 -record(state, {}).
@@ -25,10 +25,10 @@ allowed_methods(Req, State) ->
   {[<<"GET">>, <<"HEAD">>, <<"OPTIONS">>, <<"POST">>], Req, State}.
 
 content_types_accepted(Req, State) ->
-  {[{{<<"application">>, <<"json">>, '*'}, json_prepare}], Req, State}.
+  {[{{<<"application">>, <<"json">>, '*'}, parse}], Req, State}.
 
 content_types_provided(Req, State) ->
-  {[{<<"application/json">>, json_prepare}], Req, State}.
+  {[{<<"application/json">>, parse}], Req, State}.
 
 charsets_provided(Req, State) ->
   {[<<"utf-8">>], Req, State}.
@@ -40,12 +40,19 @@ parse(Req, State) ->
   debug("request is ~w", [Req]),
   [Path, MethodBin] = cowboy_req:get([path, method], Req),
   Method = method(MethodBin),
-  PathPretty = pretty_uri(Path),
-  [<<>>, Object | Args] = re:split(PathPretty, "/"),
+  [<<>>, Object | GetArgs] = re:split(Path, "/"),
+  {Args, ReqN} = if
+           Method =:= read -> {GetArgs, Req};
+           true ->
+             {ok, PostData, Req2} = cowboy_req:body(Req),
+             debug("decoding ~w", [PostData]),
+             DecodedData = decode(PostData),
+             debug("decoded ~w", [DecodedData]),
+             {GetArgs ++ [DecodedData], Req2}
+         end,
   debug("path is ~w", [Args]),
-  Answer = erlang:apply(?MODULE, json, [Method, Object, Args]),
-  debug("answer"),
-  {Answer, Req, State}.
+  Answer = route(Object, Method, Args),
+  {Answer, ReqN, State}.
 
 sql(Req, Data) ->
   debug("query is ~w: ~w", [Req, Data]),
@@ -56,7 +63,7 @@ sql(Req, Data) ->
     Vals -> Vals
   end.
 
-json(<<"GET">>, <<"items">>, []) ->
+route(<<"items">>, read, []) ->
   Query =
     "select array_to_json(array_agg(row_to_json)) as json from("
       "select row_to_json(owners) from ("
@@ -77,17 +84,14 @@ json(<<"GET">>, <<"items">>, []) ->
     ") S",
   sql(execute, {Query, []});
 
-json(Method, <<"object">>, Args) ->
-  ska_object:json(Method, Args).
+route(<<"object">>, Method, Args) ->
+  ska_object:Method(Args);
+route(<<"group">>, Method, Args) ->
+  ska_group:Method(Args).
 
-pretty_uri(Path) -> pretty_uri(<<>>, Path).
-pretty_uri(Result, <<$%, A, B, Rest/binary>>) when A >= $0, A =< $F, B >= $0, B =< $F ->
-  Symbol = typextfun:from_hex(<<A, B>>),
-  pretty_uri(<<Result/binary, Symbol/binary>>, Rest);
-pretty_uri(Result, <<S, Rest/binary>>) ->
-  pretty_uri(<<Result/binary, S>>, Rest);
-pretty_uri(Result, <<>>) -> Result.
-
-method(<<"GET">>) -> get;
-method(<<"POST">>) -> post;
+method(<<"GET">>) -> read;
+method(<<"POST">>) -> update;
+method(<<"HEAD">>) -> read;
 method(M) -> err("unhandled method ~w", [M]), unhandled.
+
+decode(Data) -> binary_to_term(typextfun:from_hex(Data), [safe]).

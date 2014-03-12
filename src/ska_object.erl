@@ -1,8 +1,22 @@
 -module(ska_object).
 
--export([json/2]).
+-export([read/1]).
 
 -include_lib("logger/include/log.hrl").
+
+read([ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
+  {ValCondition, Join, AddCondition, AddValues} = track_condition(Mod),
+  Query = track_sql(ValCondition, Join, AddCondition),
+  TracksJson = ska_json:sql(execute, {Query, [
+                        binary_to_integer(ObjectId),
+                        ska:to_datetime(FromDateTime),
+                        ska:to_datetime(ToDateTime) | AddValues]}),
+  debug("tracks: ~w", [TracksJson]),
+  Tracks = case iolist_to_binary([<<$,, X/binary>> || [{jsons, X}] <- TracksJson]) of
+             <<>> -> <<>>;
+             <<$,, T/binary>> -> T
+           end,
+  [<<"[">>, Tracks , <<"]">>].
 
 track_sql(ValCondition, Join, AddCondition) ->
   "select row_to_json(S1.*) as jsons from ("
@@ -31,24 +45,10 @@ track_sql(ValCondition, Join, AddCondition) ->
   ") S1"
   .
 
-json(<<"GET">>, [ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
-  {ValCondition, Join, AddCondition, AddValues} = track_condition(Mod),
-  Query = track_sql(ValCondition, Join, AddCondition),
-  TracksJson = ska_rest:sql(execute, {Query, [
-                        binary_to_integer(ObjectId),
-                        ska:to_datetime(FromDateTime),
-                        ska:to_datetime(ToDateTime) | AddValues]}),
-  debug("tracks: ~w", [TracksJson]),
-  Tracks = case iolist_to_binary([<<$,, X/binary>> || [{jsons, X}] <- TracksJson]) of
-             <<>> -> <<>>;
-             <<$,, T/binary>> -> T
-           end,
-  [<<"[">>, Tracks , <<"]">>].
-
 track_condition([]) -> {"true", "", "", []};
 track_condition([<<"sensor">>, SensorIdBin, Cond, SensorValue]) ->
   SensorId = binary_to_integer(SensorIdBin),
-  case ska_rest:sql(execute, {"select sensor.data_type(object.sensor($1)) as json", [SensorId]}) of
+  case ska_json:sql(execute, {"select sensor.data_type(object.sensor($1)) as json", [SensorId]}) of
     [] ->
       warning("sensor type not found"),
       track_condition([]);
