@@ -23,25 +23,15 @@ stop(_State) ->
 dispatch_rules() ->
   cowboy_router:compile(
     [{'_', [
-          {<<"/">>,
-           cowboy_static, [
-              {directory, {priv_dir, ska, [<<"static">>]}},
-              {file, <<"index.html">>},
-              {charset, <<"utf-8">>},
-              {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
-          ]},
-          {<<"/favicon.ico">>,
-           cowboy_static, [
-              {directory, {priv_dir, ska, [<<"static">>]}},
-              {file, <<"favicon.ico">>},
-              {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
-          ]},
-          {<<"/static/[...]">>,
-           cowboy_static, [
-              {directory, {priv_dir, ska, [<<"static">>]}},
-              {charset, <<"utf-8">>},
-              {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
-          ]},
+          {"/", cowboy_static, {priv_file, ska, "static/index.html",
+                                [{mimetypes, cow_mimetypes, web}]
+          }},
+          {"/favicon.ico", cowboy_static, {priv_file, ska, "static/favicon.ico",
+                                [{mimetypes, cow_mimetypes, web}]
+          }},
+          {"/static/[...]", cowboy_static, {priv_dir, ska, "static",
+                                [{mimetypes, cow_mimetypes, web}]
+          }},
           {<<"/ws/[...]">>, bullet_handler, [{handler, ska_ws}]},
           {'_', ska_json, []}
           ]}]).
