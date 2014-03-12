@@ -11,12 +11,13 @@
       <table>
         <tr>
           <td>Название</td>
-          <td><input ng-model='group.title'></td>
+          <td><input type='text' ng-model='group.title' ng-disabled='disabled'></td>
         </tr>
         <tr>
           <td>Родительская группа</td>
           <td>
             <select ng-model='group.parent_group'
+              ng-disabled='true'
               ng-options='gr.title for (id,gr) in data.groups'>
               <option value=''></option>
             </select>
@@ -30,7 +31,7 @@
 </div>
 <div class="modal-footer">
   <button type='button' class='btn btn-primary'
-    ng-click="save()" ng-disabled='disabled'>{{button.save}}</button>
+    ng-click="save()" ng-disabled='!diff() || disabled'>{{button.save}}</button>
   <button type="button" class="btn btn-default"
     ng-click="cancel()" ng-disabled='disabled'>{{button.close}}</button>
 </div>
