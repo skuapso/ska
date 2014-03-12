@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('skuapso-init', [
-    'ui.bootstrap',
+    'ui.bootstrap'
 ])
-.service('skuapso-init', function() {
+.service('skuapso-init', [function() {
     this.inherit = function(Child, Parent) {
       var F = function() {};
       F.prototype = Parent.prototype;
@@ -24,7 +24,12 @@ angular.module('skuapso-init', [
       inherit(F, SkuapsoItem);
       return F;
     };
-})
+
+    this.encode = function(obj) {
+      var data = Bert.encode(obj).hex();
+      return data;
+    };
+}])
 .service('skuapso-data', [
     '$http',
     '$rootScope',

@@ -39,9 +39,8 @@ angular.module('skuapso-init')
               modal.dismiss('canceled');
             };
             scope.save = function() {
-              console.debug('saving %o', angular.toJson(scope.group));
-              console.debug('diff is %o', this.diff());
-              http.post('/group/' + this.group.id, Bert.encode(this.diff()));
+              var data = Class.encode(this.diff());
+              http.post('/group/' + this.group.id, data);
             };
           }];
 

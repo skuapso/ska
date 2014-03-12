@@ -5,6 +5,7 @@
     "angular": ">=1.2.14 <1.2.15",
     "leaflet": ">=0.7.2",
     "angular-bootstrap": "latest",
-    "jQuery-contextMenu": ">=1.6.5"
+    "jQuery-contextMenu": ">=1.6.5",
+    "bert.js": "latest"
   }
 }
