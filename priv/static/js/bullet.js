@@ -4,8 +4,6 @@ angular.module('websocket.bullet', [])
 .provider('bullet', [function() {
   var that = this;
   this.$get = ['$injector', function(injector) {
-    console.debug('bullet');
-
     var Bullet = function(url, options) {
       var opts = angular.extend(that.defaults, options || {})
       var bullet = $.bullet(url, opts);

@@ -5,13 +5,12 @@ angular.module('skuapso-init')
 .service('skuapso-init-object-model', [
     'skuapso-init',
     function(Class) {
-      var SkuapsoObjectModel = function(props) {
-        props.type = 'object_model';
-        SkuapsoObjectModel.superclass.constructor.call(this, props);
-      };
-      Class.inherit(SkuapsoObjectModel, Class.Item);
-
-      Class.object_model = SkuapsoObjectModel;
+      this.new = function(opts) {
+        var o = Class.new(opts);
+        o.type = 'object_model';
+        return o;
+      }
+      Class.object_model = this.new;
     }]
 )
 ;

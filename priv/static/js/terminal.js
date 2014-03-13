@@ -5,14 +5,14 @@ angular.module('skuapso-init')
 .service('skuapso-init-terminal', [
     'skuapso-init',
     function(Class) {
-
-      var Skuapsoterminal = function(props) {
+      this.new = function(props) {
+        var o = Class.new(props);
         props.type = 'terminal';
-        Skuapsoterminal.superclass.constructor.call(this, props);
-      };
-      Class.inherit(Skuapsoterminal, Class.Item);
 
-      Class.terminal = Skuapsoterminal;
+        return o;
+      };
+
+      Class.terminal = this.new;
     }]
 )
 ;

@@ -2,34 +2,18 @@
 
 angular.module('skuapso-init', [
     'ui.bootstrap',
-    'websocket.bullet'
+    'websocket.bullet',
+    'isolated-scope'
 ])
-.service('skuapso-init', [function() {
-    this.inherit = function(Child, Parent) {
-      var F = function() {};
-      F.prototype = Parent.prototype;
-      Child.prototype = new F();
-      Child.prototype.constructor = Child;
-      Child.superclass = Parent.prototype;
-    };
-
-    this.Item = function(props) {
-      angular.extend(this, props);
-    };
-
-    this.SimpleType = function(type) {
-      var F = function(props) {
-        props.type = type;
-        this.Item.superclass.constructor.call(this, props);
-      };
-      inherit(F, SkuapsoItem);
-      return F;
-    };
-
-    this.encode = function(obj) {
-      var data = Bert.encode(obj).hex();
-      return data;
-    };
+.service('skuapso-init', ['isolatedScope', function(is) {
+  this.new = function(prop) {
+    var o = is();
+    return angular.extend(o, prop || {});
+  };
+  this.encode = function(obj) {
+    var data = Bert.encode(obj).hex();
+    return data;
+  };
 }])
 .service('skuapso-data', [
     '$http',
@@ -47,7 +31,6 @@ angular.module('skuapso-init', [
       init, objects, owners, groups, objectsModels, spec, terminals) {
       var data = this, emptyArray = [], childs = {};
 
-      console.debug('bullet is %o', bullet);
       root.loaded = false;
       this.objects = objects;
       this.owners = owners;
@@ -67,7 +50,7 @@ angular.module('skuapso-init', [
       http.get('items').success(function(items) {
         var i = 0, l = items.length, item;
         for (i; i < l; i++) {
-          item = data[items[i].type + 's'][items[i].id] = new init[items[i].type](items[i]);
+          item = data[items[i].type + 's'][items[i].id] = init[items[i].type](items[i]);
           if (!item.parent) continue;
           if (!childs[item.parent.type + '_' + item.parent.id]) {
             childs[item.parent.type + '_' + item.parent.id] = [];
@@ -84,6 +67,13 @@ angular.module('skuapso-init', [
         for (i in childs) {
           childs[i] = filter('orderBy')(childs[i], 'title');
         }
+        Object.defineProperty(root, 'childs', {
+          get: function() {
+            return childs['owner_null']
+              ? childs['owner_null']
+              : emptyArray;
+          }
+        });
         root.loaded = true;
       });
       bullet.on = {

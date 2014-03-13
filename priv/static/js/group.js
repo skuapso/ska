@@ -8,11 +8,11 @@ angular.module('skuapso-init')
     '$modal',
     '$http',
     function(Class, root, modal, http) {
-      var SkuapsoGroup = function(props) {
-        props.type = 'group';
-        SkuapsoGroup.superclass.constructor.call(this, props);
+      this.new = function(props) {
+        var o = Class.new(props);
+        o.type = 'group';
 
-        this.edit = function() {
+        o.edit = function() {
           var scope = root.$new(true), modalOpts, modalWin, modalActions, diff;
           scope.title = this.title;
           scope.data = Class.data;
@@ -53,24 +53,25 @@ angular.module('skuapso-init')
 
           modalWin = modal.open(modalOpts);
         }
-      };
-      Class.inherit(SkuapsoGroup, Class.Item);
-      Object.defineProperty(SkuapsoGroup.prototype, 'parent', {
-        get: function() {
-          return this.parent_id ? {type: 'group', id: this.parent_id}
-          : {type: 'owner', id: this.owner_id};
-        }
-      });
-      Object.defineProperty(SkuapsoGroup.prototype, 'parent_group', {
-        get: function() {
-          return Class.data.groups[this.parent_id];
-        },
-        set: function(parentGroup) {
-          this.parent_id = parentGroup ? parentGroup.id : null;
-        }
-      });
+        Object.defineProperty(o, 'parent', {
+          get: function() {
+            return this.parent_id ? {type: 'group', id: this.parent_id}
+            : {type: 'owner', id: this.owner_id};
+          }
+        });
+        Object.defineProperty(o, 'parent_group', {
+          get: function() {
+            return Class.data.groups[this.parent_id];
+          },
+          set: function(parentGroup) {
+            this.parent_id = parentGroup ? parentGroup.id : null;
+          }
+        });
 
-      Class.group = SkuapsoGroup;
+        return o;
+      };
+
+      Class.group = this.new;
     }]
 )
 ;

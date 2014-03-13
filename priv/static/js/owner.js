@@ -5,19 +5,20 @@ angular.module('skuapso-init')
 .service('skuapso-init-owner', [
     'skuapso-init',
     function(Class) {
-      var SkuapsoOwner = function(props) {
-        props.type = 'owner';
-        SkuapsoOwner.superclass.constructor.call(this, props);
-      };
-      Class.inherit(SkuapsoOwner, Class.Item);
-      Object.defineProperty(SkuapsoOwner.prototype, 'parent', {
-        get: function() {
-          return this.parent_id ? {type: 'owner', id: this.parent_id}
-          : {type: 'owner', id: null};
-        }
-      });
+      this.new = function(props) {
+        var o = Class.new(props);
+        o.type = 'owner';
+        Object.defineProperty(o, 'parent', {
+          get: function() {
+            return this.parent_id ? {type: 'owner', id: this.parent_id}
+            : {type: 'owner', id: null};
+          }
+        });
 
-      Class.owner = SkuapsoOwner;
+        return o;
+      };
+
+      Class.owner = this.new;
     }]
 )
 ;

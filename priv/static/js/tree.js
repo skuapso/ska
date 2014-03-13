@@ -31,31 +31,30 @@ angular.module('skuapso-tree', [])
     };
 
     var rebuildChilds = function(childs, _childs, scope) {
-      if (!angular.isArray(childs)) return;
-      var ul, i, len = childs.length, newElem, newScope, item;
+      if (!angular.isArray(scope.childs)) return;
+      var ul, i, len = scope.childs.length, newElem, newScope, item;
       element.find('>ul').remove();
-      if (childs && childs.length > 0) {
+      if (scope.childs && scope.childs.length > 0) {
         ul = element.append('<ul></ul>').find('>ul');
         for (i = 0; i < len; i++) {
-          item = scope.node.childs[i];
+          item = scope.childs[i];
           newElem = ul.append('<li ' + item.type + '="' + item.id + '"></li>').find('li:last-child');
         }
         compile(element.contents())(scope);
         for (i = 0; i < len; i++) {
-          item = scope.node.childs[i];
-          if (data.childs(item).length) {
+          item = scope.childs[i];
+          if (item.childs.length) {
             newElem = element.find('li[' + item.type + '=' + item.id +']');
             newElem.attr('list', '');
-            newScope = scope.$new(true);
-            newScope.node = scope.node.childs[i];
-            newElem = compile(newElem)(newScope);
+            newElem = compile(newElem)(item);
+            item.$digest();
           }
         }
       }
     };
-    scope.$watch('node.childs.length==0', toggleImg, angular.equals);
+    scope.$watch('childs.length==0', toggleImg, angular.equals);
     scope.$watch('collapsed', toggleChilds, angular.equals);
-    scope.$watch('node.childs', rebuildChilds, angular.equals);
+    scope.$watch('childs.length', rebuildChilds, angular.equals);
   };
 
   return def;

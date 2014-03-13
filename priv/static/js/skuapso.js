@@ -49,15 +49,6 @@ skuapsoModule
 .controller('management', ['$rootScope', '$scope', function(root, scope) {
   scope.controls = root.controls;
 }])
-.controller('listRoot', ['$scope', 'skuapso-data', function(scope, data) {
-  var id;
-  scope.node = {};
-  Object.defineProperty(scope.node, 'childs', {
-    get: function() {
-      return data.childs({type: 'owner', id: null})
-    }
-  });
-}])
 .directive('owner', $directive('owner', ['owner', 'group']))
 .directive('group', $directive('group', ['group', 'object']))
 .directive('object', $directive('object', []))
