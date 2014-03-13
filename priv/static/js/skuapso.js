@@ -1,5 +1,6 @@
 'use strict';
 
+console.warn('Директивы owner, group, list работают не с выделенным скоупом, а с родительским :(');
 var $directive = function($type, $childs) {
 	$.contextMenu({
 		selector: 'div.context-menu.' + $type,
@@ -81,7 +82,7 @@ skuapsoModule
   config.startingDay = 1;
 }])
 .config(['datepickerPopupConfig', function(config) {
-  config.dateFormat = 'shortDate';
+  config.dateFormat = 'mediumDate';
 }])
 .config(['timepickerConfig', function(config) {
   config.showMeridian = false;
