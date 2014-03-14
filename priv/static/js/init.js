@@ -51,7 +51,7 @@ angular.module('skuapso-init', [
           modalOpts = {
             scope: scope,
             controller: modalActions,
-            templateUrl: '/static/tpl/skuapso/' + this.type + '.edit.tpl.html'
+            templateUrl: '/static/tpl/skuapso/edit/' + this.type + '.tpl.html'
           };
 
           modalWin = modal.open(modalOpts);
