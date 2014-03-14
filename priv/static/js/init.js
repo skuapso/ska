@@ -14,9 +14,9 @@ angular.module('skuapso-init', [
       this.new = function(prop) {
         var o = is(), data = this,
             types = {
-              owner: {sotringValue: 0},
-              group: {sortingValue: 10},
-              object: {sortingValue: 100}
+              owner: {sortingValue: 0},
+              group: {sortingValue: 1},
+              object: {sortingValue: 22}
             };
         angular.extend(o, prop || {});
 
