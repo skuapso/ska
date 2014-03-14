@@ -1,20 +1,24 @@
 'use strict';
 
-console.warn('Директивы owner, group, list работают не с выделенным скоупом, а с родительским :(');
 var $directive = function($type, $childs) {
 	$.contextMenu({
 		selector: 'div.context-menu.' + $type,
 		items: $.contextMenu.fromMenu('menu#' + $type)
 	});
-  return ['skuapso-data', function(data) {
+  return ['skuapso-data', '$compile', function(data, compile) {
     var def = {};
 
     def.link = function($scope, $element, $attrs) {
       var obj = data.get({type: $type, id: $attrs[$type]});
-      var d = 'data-type="' + $type + '" data-id="' + $attrs[$type] + '"';
-      $element.find('>div.'+obj.type).remove();
-      $element.prepend('<div '+ d +' class="context-menu ' + obj.type + '">'
-          + obj.title + '</div>');
+      var div = $('<div class="context-menu ' + $type
+            + '" data-type="' + $type
+            + '" data-id="{{id}}">'
+            + '{{title}}'
+            + '</div>');
+      $element.find('>div.' + $type).remove();
+      $element.prepend(div);
+      compile(div)(obj);
+      obj.$digest();
     };
 
     return def;
