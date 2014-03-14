@@ -14,6 +14,14 @@ angular.module('skuapso-init')
             : {type: 'owner', id: null};
           }
         });
+        Object.defineProperty(o, 'parent_owner', {
+          get: function() {
+            return Class.data.owners[this.parent_id];
+          },
+          set: function(parentOwner) {
+            this.parent_id = parentOwner ? parentOwner.id : null;
+          }
+        });
 
         return o;
       };

@@ -1,0 +1,37 @@
+<div class="modal-header">
+  Редактирование подразделения<br>
+  <b>{{title}}</b>
+  <button type="button" class="close" ng-click="cancel()" ng-disabled='disabled'>
+    <i class='glyphicon glyphicon-remove'></i>
+  </button>
+</div>
+<div class="modal-body">
+  <tabset>
+    <tab heading='Общее'>
+      <table>
+        <tr>
+          <td>Название</td>
+          <td><input type='text' ng-model='modal.title' ng-disabled='disabled'></td>
+        </tr>
+        <tr>
+          <td>Родительское подразделение</td>
+          <td>
+            <select ng-model='modal.parent_owner'
+              ng-disabled='disabled'
+              ng-options='o.title for (id,o) in data.owners'>
+              <option value=''></option>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </tab>
+    <tab heading='Репликация'>
+    </tab>
+  </tabset>
+</div>
+<div class="modal-footer">
+  <button type='button' class='btn btn-primary'
+    ng-click="save()" ng-disabled='!diff() || disabled'>{{button.save}}</button>
+  <button type="button" class="btn btn-default"
+    ng-click="cancel()" ng-disabled='disabled'>{{button.close}}</button>
+</div>
