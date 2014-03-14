@@ -81,6 +81,10 @@ route(<<"items">>, read, []) ->
       " union all select row_to_json(objects_specializations) from ("
         "select *,'specialization' as \"type\" from objects.specializations"
       ") objects_specializations"
+      " union all select row_to_json(terminals) from("
+        "select *,'terminal' as \"type\" from terminals.data"
+        " where id in (select terminal_id from objects.data)"
+      ") terminals"
     ") S",
   sql(execute, {Query, []});
 
