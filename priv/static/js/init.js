@@ -12,8 +12,17 @@ angular.module('skuapso-init', [
     '$http',
     function(is, root, modal, http) {
       this.new = function(prop) {
-        var o = is(), data = this;
+        var o = is(), data = this,
+            types = {
+              owner: {sotringValue: 0},
+              group: {sortingValue: 10},
+              object: {sortingValue: 100}
+            };
         angular.extend(o, prop || {});
+
+        Object.defineProperty(o, 'sortingValue', {
+          get: function() {return types[this.type].sortingValue;}
+        });
 
         o.edit = function() {
           var scope = root.$new(true), modalOpts, modalWin, modalActions, diff;
@@ -114,7 +123,7 @@ angular.module('skuapso-init', [
           });
         }
         for (i in childs) {
-          childs[i] = filter('orderBy')(childs[i], 'title');
+          childs[i] = filter('orderBy')(childs[i], ['sortingValue', 'title']);
         }
         Object.defineProperty(root, 'childs', {
           get: function() {
