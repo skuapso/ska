@@ -7,7 +7,7 @@
 read([ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
   {ValCondition, Join, AddCondition, AddValues} = track_condition(Mod),
   Query = track_sql(ValCondition, Join, AddCondition),
-  TracksJson = ska_json:sql(execute, {Query, [
+  TracksJson = ska:sql(execute, {Query, [
                         binary_to_integer(ObjectId),
                         ska:to_datetime(FromDateTime),
                         ska:to_datetime(ToDateTime) | AddValues]}),
@@ -48,7 +48,7 @@ track_sql(ValCondition, Join, AddCondition) ->
 track_condition([]) -> {"true", "", "", []};
 track_condition([<<"sensor">>, SensorIdBin, Cond, SensorValue]) ->
   SensorId = binary_to_integer(SensorIdBin),
-  case ska_json:sql(execute, {"select sensor.data_type(object.sensor($1)) as json", [SensorId]}) of
+  case ska:sql(execute, {"select sensor.data_type(object.sensor($1)) as json", [SensorId]}) of
     [] ->
       warning("sensor type not found"),
       track_condition([]);

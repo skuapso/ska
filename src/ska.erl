@@ -1,6 +1,7 @@
 -module(ska).
 
 -compile(export_all).
+-export([sql/2]).
 
 -include_lib("logger/include/log.hrl").
 
@@ -53,3 +54,11 @@ to_time(Time) when is_binary(Time) ->
         F when is_float(F) -> F
       end,
   {binary_to_integer(H), binary_to_integer(M), S}.
+
+sql(Req, Data) ->
+  case psql:execute(Req, Data, infinity) of
+    [] -> [];
+    [[{json, null}]] -> [];
+    [[{json, Vals}]] -> Vals;
+    Vals -> Vals
+  end.

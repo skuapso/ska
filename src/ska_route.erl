@@ -1,4 +1,4 @@
--module(ska_json).
+-module(ska_route).
 
 -export([init/3]).
 -export([rest_init/2]).
@@ -9,7 +9,6 @@
 
 -export([parse/2]).
 -export([route/3]).
--export([sql/2]).
 
 -record(state, {}).
 
@@ -54,15 +53,6 @@ parse(Req, State) ->
   Answer = route(Object, Method, Args),
   {Answer, ReqN, State}.
 
-sql(Req, Data) ->
-  debug("query is ~w: ~w", [Req, Data]),
-  case psql:execute(Req, Data, infinity) of
-    [] -> [];
-    [[{json, null}]] -> [];
-    [[{json, Vals}]] -> Vals;
-    Vals -> Vals
-  end.
-
 route(<<"items">>, read, []) ->
   Query =
     "select array_to_json(array_agg(row_to_json)) as json from("
@@ -86,7 +76,7 @@ route(<<"items">>, read, []) ->
         " where id in (select terminal_id from objects.data)"
       ") terminals"
     ") S",
-  sql(execute, {Query, []});
+  ska:sql(execute, {Query, []});
 
 route(<<"object">>, Method, Args) ->
   ska_object:Method(Args);

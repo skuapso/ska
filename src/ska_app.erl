@@ -36,5 +36,5 @@ dispatch_rules() ->
                                 [{mimetypes, cow_mimetypes, web}]
           }},
           {<<"/ws/[...]">>, bullet_handler, [{handler, ska_ws}]},
-          {'_', ska_json, []}
+          {'_', ska_route, []}
           ]}]).
