@@ -22,6 +22,7 @@ angular.module('skuapso-map', [])
     }]
 )
 .directive('skuapsoMap', ['skuapso-map', function(map) {
+  console.warn('вероятно пригодится выделенный scope');
   var def = {};
 
   def.scope = {};
