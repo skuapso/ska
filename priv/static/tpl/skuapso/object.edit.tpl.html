@@ -1,7 +1,7 @@
 <div class="modal-header">
   Редактирование транспортного средства<br>
   <b>{{title}}</b>
-  <button type="button" class="close" ng-click="cancel()">
+  <button type="button" class="close" ng-click="cancel()" ng-disabled='disabled'>
     <i class='glyphicon glyphicon-remove'></i>
   </button>
 </div>
@@ -11,12 +11,13 @@
       <table>
         <tr>
           <td>Гос. номер</td>
-          <td><input ng-model='object.no'></td>
+          <td><input ng-model='modal.no' ng-disabled='disabled'></td>
         </tr>
         <tr>
           <td>Модель</td>
           <td>
-            <select ng-model='object.model'
+            <select ng-model='modal.model'
+              ng-disabled='disabled'
               ng-options='model.title for (id,model) in data.object_models'>
             </select>
           </td>
@@ -24,7 +25,8 @@
         <tr>
           <td>Специализация</td>
           <td>
-            <select ng-model='object.specialization'
+            <select ng-model='modal.specialization'
+              ng-disabled='disabled'
               ng-options='specialization.title for (id,specialization) in data.specializations'>
               <option></option>
             </select>
@@ -33,17 +35,18 @@
         <tr>
           <td>Группа</td>
           <td>
-            <select ng-model='object.group'
+            <select ng-model='modal.group'
+              ng-disabled='disabled'
               ng-options='group.title for (id,group) in data.groups'>
             </select>
-<!--              <input ng-model='object.group' typeahead-wait-ms=250 typeahead-editable=false
+<!--              <input ng-model='modal.group' typeahead-wait-ms=250 typeahead-editable=false
               typeahead='group as group.title for group in data.groups | toArray | orderBy:title | filter:{title:$viewValue} | limitTo:6'> -->
           </td>
         </tr>
         <tr>
           <td>Навигационный терминал</td>
           <td>
-            <input ng-model='object.terminal_id'>
+            <input ng-model='modal.terminal_id' ng-disabled='disabled'>
           </td>
         </tr>
       </table>
@@ -56,6 +59,8 @@
   </tabset>
 </div>
 <div class="modal-footer">
-  <button type='button' class='btn btn-primary' ng-click="save()">Save</button>
-  <button type="button" class="btn btn-default" ng-click="cancel()">Close</button>
+  <button type='button' class='btn btn-primary'
+    ng-click="save()" ng-disabled='!diff() || disabled'>{{button.save}}</button>
+  <button type="button" class="btn btn-default"
+    ng-click="cancel()" ng-disabled='disabled'>{{button.close}}</button>
 </div>

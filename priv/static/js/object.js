@@ -13,28 +13,6 @@ angular.module('skuapso-init')
         var o = Class.new(props);
         o.type = 'object';
 
-        o.edit = function() {
-          var scope = root.$new(true);
-          scope.title = this.title;
-          scope.data = Class.data;
-          scope.object = new Class.object(this);
-          var modalActions = ['$scope', '$modalInstance', function(scope, modal) {
-            scope.cancel = function() {
-              modal.dismiss('canceled');
-            };
-            scope.save = function() {
-              console.debug('%o', angular.toJson(scope.object));
-            };
-          }];
-          var modalOpts = {
-            scope: scope,
-            controller: modalActions,
-            templateUrl: '/static/tpl/skuapso/object.edit.tpl.html'
-          };
-          var modalWin = modal.open(modalOpts);
-          modalWin.result.then(function() {console.debug('result')});
-        };
-
         o.track = function() {
           var $from = filter('date')(root.controls.fromDateTime, 'psql');
           var $to   = filter('date')(root.controls.toDateTime, 'psql');

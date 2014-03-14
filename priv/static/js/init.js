@@ -5,16 +5,65 @@ angular.module('skuapso-init', [
     'websocket.bullet',
     'isolated-scope'
 ])
-.service('skuapso-init', ['isolatedScope', function(is) {
-  this.new = function(prop) {
-    var o = is();
-    return angular.extend(o, prop || {});
-  };
-  this.encode = function(obj) {
-    var data = Bert.encode(obj).hex();
-    return data;
-  };
-}])
+.service('skuapso-init', [
+    'isolatedScope',
+    '$rootScope',
+    '$modal',
+    '$http',
+    function(is, root, modal, http) {
+      this.new = function(prop) {
+        var o = is(), data = this;
+        angular.extend(o, prop || {});
+
+        o.edit = function() {
+          var scope = root.$new(true), modalOpts, modalWin, modalActions, diff;
+          scope.title = this.title;
+          scope.data = data.data;
+          scope.modal = data[this.type](this);
+          scope.button = {
+            save: 'Сохранить',
+            close: 'Отменить'
+          };
+
+          scope.diff = function() {
+            var id, diff = null, original = data.data[this.modal.type + 's'][this.modal.id];
+            for (id in this.modal) {
+              if (this.modal[id] != original[id]) {
+                if (angular.isFunction(this.modal[id])) continue;
+                if (!diff) diff = {};
+                diff[id] = this.modal[id];
+              }
+            }
+            return diff;
+          };
+
+          modalActions = ['$scope', '$modalInstance', function(scope, modal) {
+            scope.cancel = function() {
+              modal.dismiss('canceled');
+            };
+            scope.save = function() {
+              scope.disabled = true;
+              var postData = data.encode(this.diff());
+              http.post('/' + this.modal.type + '/' + this.modal.id, postData);
+            };
+          }];
+
+          modalOpts = {
+            scope: scope,
+            controller: modalActions,
+            templateUrl: '/static/tpl/skuapso/' + this.type + '.edit.tpl.html'
+          };
+
+          modalWin = modal.open(modalOpts);
+        }
+
+        return o;
+      };
+      this.encode = function(obj) {
+        var data = Bert.encode(obj).hex();
+        return data;
+      };
+    }])
 .service('skuapso-data', [
     '$http',
     '$rootScope',

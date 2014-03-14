@@ -11,12 +11,12 @@
       <table>
         <tr>
           <td>Название</td>
-          <td><input type='text' ng-model='group.title' ng-disabled='disabled'></td>
+          <td><input type='text' ng-model='modal.title' ng-disabled='disabled'></td>
         </tr>
         <tr>
           <td>Родительская группа</td>
           <td>
-            <select ng-model='group.parent_group'
+            <select ng-model='modal.parent_group'
               ng-disabled='disabled'
               ng-options='gr.title for (id,gr) in data.groups'>
               <option value=''></option>
