@@ -53,7 +53,7 @@ angular.module('skuapso-init', [
             scope.save = function() {
               scope.disabled = true;
               var postData = data.encode(this.diff());
-              http.post('/' + this.modal.type + '/' + this.modal.id, postData);
+              http.patch('/' + this.modal.type + '/' + this.modal.id, postData);
             };
           }];
 
@@ -134,6 +134,13 @@ angular.module('skuapso-init', [
         });
         root.loaded = true;
       });
+      http.patch = function(url, data, config) {
+        return http(angular.extend(config || {}, {
+          method: 'patch',
+          url: url,
+          data: data
+        }));
+      };
       bullet.on = {
         message: function(e) {
           console.debug("data is %o", e.data);
