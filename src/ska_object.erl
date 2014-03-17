@@ -1,8 +1,16 @@
 -module(ska_object).
 
+-export([model/0]).
+-export([parse/1]).
 -export([read/1]).
 
 -include_lib("logger/include/log.hrl").
+
+model() -> {objects, data}.
+
+parse(Args) ->
+  alert("returning same args"),
+  Args.
 
 read([ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
   {ValCondition, Join, AddCondition, AddValues} = track_condition(Mod),
@@ -50,7 +58,7 @@ track_condition([<<"sensor">>, SensorIdBin, Cond, SensorValue]) ->
   SensorId = binary_to_integer(SensorIdBin),
   case ska:sql(execute, {"select sensor.data_type(object.sensor($1)) as json", [SensorId]}) of
     [] ->
-      warning("sensor type not found"),
+      warning("sensor type not found ~w", [{sensor, SensorId}]),
       track_condition([]);
     SensorDataType ->
       debug("sensor data type is ~w", [SensorDataType]),

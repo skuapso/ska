@@ -1,11 +1,11 @@
--module(ska_group).
+-module(ska_owner).
 
 -export([model/0]).
 -export([parse/1]).
 
 -include_lib("logger/include/log.hrl").
 
-model() -> {objects, groups}.
+model() -> {owners, data}.
 
 parse(Args) ->
   alert("returning same args"),

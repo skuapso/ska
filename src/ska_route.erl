@@ -21,7 +21,7 @@ rest_init(Req, _Opts) ->
   {ok, Req, #state{}}.
 
 allowed_methods(Req, State) ->
-  {[<<"GET">>, <<"HEAD">>, <<"OPTIONS">>, <<"POST">>], Req, State}.
+  {[<<"GET">>, <<"HEAD">>, <<"OPTIONS">>, <<"PATCH">>], Req, State}.
 
 content_types_accepted(Req, State) ->
   {[{{<<"application">>, <<"json">>, '*'}, parse}], Req, State}.
@@ -38,8 +38,9 @@ charsets_provided(Req, State) ->
 parse(Req, State) ->
   debug("request is ~w", [Req]),
   [Path, MethodBin] = cowboy_req:get([path, method], Req),
+  [<<>>, Target | GetArgs] = re:split(Path, "/"),
   Method = method(MethodBin),
-  [<<>>, Object | GetArgs] = re:split(Path, "/"),
+  TargetModule = target(Target),
   {Args, ReqN} = if
            Method =:= read -> {GetArgs, Req};
            true ->
@@ -47,13 +48,13 @@ parse(Req, State) ->
              debug("decoding ~w", [PostData]),
              DecodedData = decode(PostData),
              debug("decoded ~w", [DecodedData]),
-             {GetArgs ++ [DecodedData], Req2}
+             {GetArgs ++ DecodedData, Req2}
          end,
   debug("path is ~w", [Args]),
-  Answer = route(Object, Method, Args),
+  Answer = route(TargetModule, Method, Args),
   {Answer, ReqN, State}.
 
-route(<<"items">>, read, []) ->
+route(?MODULE, read, []) ->
   Query =
     "select array_to_json(array_agg(row_to_json)) as json from("
       "select row_to_json(owners) from ("
@@ -78,14 +79,26 @@ route(<<"items">>, read, []) ->
     ") S",
   ska:sql(execute, {Query, []});
 
-route(<<"object">>, Method, Args) ->
-  ska_object:Method(Args);
-route(<<"group">>, Method, Args) ->
-  ska_group:Method(Args).
+route(Target, update, [IdBin | Args]) ->
+  {Schema, Table} = Target:model(),
+  Id = binary_to_integer(IdBin),
+  ParsedArgs = Target:parse(Args),
+  debug("updating ~w: ~w", [{Schema, Table, Id}, ParsedArgs]),
+  {ok, Id} =:= ska:sql(update, {Schema, Table, {ParsedArgs, [{id, Id}]}});
+route(Target, Method, Args) ->
+  Target:Method(Args).
 
 method(<<"GET">>) -> read;
 method(<<"POST">>) -> update;
+method(<<"PATCH">>) -> update;
 method(<<"HEAD">>) -> read;
 method(M) -> err("unhandled method ~w", [M]), unhandled.
 
-decode(Data) -> binary_to_term(typextfun:from_hex(Data), [safe]).
+target(<<"items">>) -> ?MODULE;
+target(<<"object">>) -> ska_object;
+target(<<"group">>) -> ska_group;
+target(<<"owner">>) -> ska_owner.
+
+decode(Data) ->
+  alert("should be safe"),
+  binary_to_term(typextfun:from_hex(Data), []).
