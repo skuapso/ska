@@ -108,16 +108,13 @@ angular.module('skuapso-init', [
 
         return o;
       };
-      this.encode = function(obj) {
-        var data = Bert.encode(obj).hex();
-        return data;
-      };
     }])
 .service('skuapso-data', [
     '$http',
     '$rootScope',
     '$filter',
     'bullet',
+    'digest',
     'skuapso-init',
     'skuapso-objects',
     'skuapso-owners',
@@ -125,7 +122,7 @@ angular.module('skuapso-init', [
     'skuapso-objects-models',
     'skuapso-specializations',
     'skuapso-terminals',
-    function(http, root, filter, bullet,
+    function(http, root, filter, bullet, digest,
       init, objects, owners, groups, objectsModels, spec, terminals) {
       var data = this, emptyArray = [], childs = {};
 
@@ -149,6 +146,7 @@ angular.module('skuapso-init', [
         var i = 0, l = items.length, item;
         for (i; i < l; i++) {
           item = data[items[i].type + 's'][items[i].id] = init[items[i].type](items[i]);
+          bullet.send({subscribe: item.ref});
           if (!item.parent) continue;
           if (!childs[item.parent.type + '_' + item.parent.id]) {
             childs[item.parent.type + '_' + item.parent.id] = [];
@@ -161,6 +159,18 @@ angular.module('skuapso-init', [
                 : emptyArray;
             }
           });
+          item.$watch('parent', function(newVal, oldVal, scope) {
+            if (newVal && oldVal && newVal.id == oldVal.id && newVal.type == oldVal.type) return;
+            var i= oldVal.type + '_' + oldVal.id;
+            childs[i].remove(scope);
+            digest.add(data.get(oldVal) ? data.get(oldVal) : root);
+            i = newVal.type + '_' + newVal.id;
+            if (!childs[i]) childs[i] = [];
+            childs[i].push(scope);
+            childs[i] = filter('orderBy')(childs[i], ['sortingValue', 'title']);
+            digest.add(data.get(newVal) ? data.get(newVal) : root);
+            digest.add(root);
+          }, angular.equals);
         }
         for (i in childs) {
           childs[i] = filter('orderBy')(childs[i], ['sortingValue', 'title']);
@@ -183,7 +193,12 @@ angular.module('skuapso-init', [
       };
       bullet.on = {
         message: function(e) {
-          console.debug("data is %o", e.data);
+          var d = angular.fromJson(e.data);
+          data.get(d).set = d;
+        },
+        send: function(obj) {
+          var data = Bert.encode(obj).hex;
+          return data;
         }
       };
     }]
