@@ -12,10 +12,18 @@ init(_Transport, Req, _Opts, _Active) ->
   {ok, Req, undefined_state}.
 
 stream(<<"ping">>, Req, State) ->
+  {ok, Req, State};
+stream(Data, Req, State) ->
+  debug("stream ~w", [ska:decode(Data)]),
+  [{Event, [Object]}] = ska:decode(Data),
+  ska_event:Event(Object),
   {ok, Req, State}.
 
+info({event, _From, _Object, Data}, Req, State) ->
+  trace("sending event ~w", [Data]),
+  {reply, Data, Req, State};
 info(Info, Req, State) ->
-  debug("info ~w", [Info]),
+  alert("unhandled info ~w", [Info]),
   {ok, Req, State}.
 
 terminate(_Req, _State) ->
