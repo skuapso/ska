@@ -1910,6 +1910,8 @@ function publishExternalAPI(angular){
     'isNumber': isNumber,
     'isElement': isElement,
     'isArray': isArray,
+    'isWindow': isWindow,
+    'isRegExp': isRegExp,
     'version': version,
     'isDate': isDate,
     'lowercase': lowercase,
