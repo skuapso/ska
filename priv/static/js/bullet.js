@@ -2,14 +2,31 @@
 
 angular.module('websocket.bullet', [])
 .provider('bullet', [function() {
+  var CONNECTING = 0;
+  var OPEN = 1;
+  var CLOSING = 2;
+  var CLOSED = 3;
+
   var that = this;
+
   this.$get = ['$injector', function(injector) {
     var Bullet = function(url, options) {
-      var opts = angular.extend(that.defaults, options || {})
+      var opts = angular.extend(that.defaults, options || {});
       var bullet = $.bullet(url, opts);
-      bullet.onopen = function() {console.debug('opened');};
-      bullet.ondisconnect = function() {console.debug('disconnected');};
-      bullet.onclose = function() {console.debug('closed');};
+      var readyState = CONNECTING;
+
+      var pending = [];
+
+      function digest() {
+        if (readyState != OPEN) return;
+        while (pending.length) {
+          bullet.send(pending.shift());
+        }
+      };
+
+      bullet.onopen = function() {readyState = OPEN; digest();};
+      bullet.ondisconnect = function() {readyState = CLOSED;};
+      bullet.onclose = function() {readyState = CLOSED;};
       bullet.onheartbeat = function() {this.send('ping');};
       bullet.onmessage = function() {console.debug('new message');};
 
@@ -22,7 +39,12 @@ angular.module('websocket.bullet', [])
         }
       });
       this.send = function(data) {
-        bullet.send(data);
+        var d = angular.safe_copy(data);
+        if (angular.isFunction(bullet['onsend'])) {
+          d = bullet['onsend'](d);
+        }
+        pending.push(d);
+        digest();
       };
     };
 
@@ -35,4 +57,9 @@ angular.module('websocket.bullet', [])
     disableEventSource: false,
     disableXHRPolling: false
   };
+  Object.defineProperty(this, 'state', {
+    get: function() {
+      return readyState;
+    }
+  });
 }]);
