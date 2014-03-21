@@ -98,7 +98,3 @@ target(<<"items">>) -> ?MODULE;
 target(<<"object">>) -> ska_object;
 target(<<"group">>) -> ska_group;
 target(<<"owner">>) -> ska_owner.
-
-decode(Data) ->
-  alert("should be safe"),
-  binary_to_term(typextfun:from_hex(Data), []).

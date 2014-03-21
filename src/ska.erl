@@ -1,7 +1,15 @@
 -module(ska).
 
--compile(export_all).
+-export([start/0]).
+-export([init/3]).
+-export([handle/2]).
+-export([terminate/3]).
+-export([to_atom/1]).
+-export([to_date/1]).
+-export([to_time/1]).
+-export([to_datetime/1]).
 -export([sql/2]).
+-export([decode/1]).
 
 -include_lib("logger/include/log.hrl").
 
@@ -62,3 +70,7 @@ sql(Req, Data) ->
     [[{json, Vals}]] -> Vals;
     Vals -> Vals
   end.
+
+decode(Data) ->
+  alert("should be safe"),
+  binary_to_term(typextfun:from_hex(Data), []).
