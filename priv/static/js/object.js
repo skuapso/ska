@@ -10,8 +10,7 @@ angular.module('skuapso-init')
     '$http',
     function(Class, root, modal, filter, http) {
       this.new = function(props) {
-        var o = Class.new(props);
-        o.type = 'object';
+        var o = Class.new('object', props.id, props);
 
         o.track = function() {
           var $from = filter('date')(root.controls.fromDateTime, 'psql');

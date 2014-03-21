@@ -6,8 +6,7 @@ angular.module('skuapso-init')
     'skuapso-init',
     function(Class) {
       this.new = function(props) {
-        var o = Class.new(props);
-        props.type = 'specialization';
+        var o = Class.new('specialization', props.id, props);
 
         return o;
       };

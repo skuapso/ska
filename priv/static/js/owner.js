@@ -6,8 +6,7 @@ angular.module('skuapso-init')
     'skuapso-init',
     function(Class) {
       this.new = function(props) {
-        var o = Class.new(props);
-        o.type = 'owner';
+        var o = Class.new('owner', props.id, props);
         Object.defineProperty(o, 'parent', {
           get: function() {
             return this.parent_id ? {type: 'owner', id: this.parent_id}

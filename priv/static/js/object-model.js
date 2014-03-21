@@ -6,8 +6,7 @@ angular.module('skuapso-init')
     'skuapso-init',
     function(Class) {
       this.new = function(opts) {
-        var o = Class.new(opts);
-        o.type = 'object_model';
+        var o = Class.new('object_model', opts.id, opts);
         return o;
       }
       Class.object_model = this.new;

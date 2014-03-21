@@ -6,8 +6,7 @@ angular.module('skuapso-init')
     'skuapso-init',
     function(Class, root, modal, http) {
       this.new = function(props) {
-        var o = Class.new(props);
-        o.type = 'group';
+        var o = Class.new('group', props.id, props);
 
         Object.defineProperty(o, 'parent', {
           get: function() {

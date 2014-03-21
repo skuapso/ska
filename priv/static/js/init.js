@@ -11,17 +11,54 @@ angular.module('skuapso-init', [
     '$modal',
     '$http',
     function(is, root, modal, http) {
-      this.new = function(prop) {
-        var o = is(), data = this,
-            types = {
-              owner: {sortingValue: 0},
-              group: {sortingValue: 1},
-              object: {sortingValue: 2}
-            };
+      var types = {
+        owner: {sortingValue: 0},
+        group: {sortingValue: 1},
+        object: {sortingValue: 2}
+      };
+
+      this.new = function(t, i, prop) {
+        var o = is(), data = this, type = t, id = i;
+        delete o['this'];
         angular.extend(o, prop || {});
 
         Object.defineProperty(o, 'sortingValue', {
           get: function() {return types[this.type].sortingValue;}
+        });
+
+        Object.defineProperty(o, 'ref', {
+          get: function() {
+            var obj = {};
+            obj[this.type] = this.id;
+            return obj;
+          }
+        });
+
+        Object.defineProperty(o, 'set', {
+          set: function(src) {
+            angular.extend(this, src);
+            this.$digest();
+          }
+        });
+
+        Object.defineProperty(o, 'type', {
+          get: function() {
+            return type;
+          },
+          set: function(newType) {
+            if (type != newType) throw('skuapso', 'types not match');
+            return this;
+          }
+        });
+
+        Object.defineProperty(o, 'id', {
+          get: function() {
+            return id;
+          },
+          set: function(newId) {
+            if (id != newId) throw('skuapso', 'ids not match');
+            return this;
+          }
         });
 
         o.edit = function() {
