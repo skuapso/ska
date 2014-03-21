@@ -147,6 +147,9 @@ angular.module('skuapso-init', [
         for (i; i < l; i++) {
           item = data[items[i].type + 's'][items[i].id] = init[items[i].type](items[i]);
           bullet.send({subscribe: item.ref});
+          item.$on('destroed', function() {
+            console.debug('destroed');
+          });
           if (!item.parent) continue;
           if (!childs[item.parent.type + '_' + item.parent.id]) {
             childs[item.parent.type + '_' + item.parent.id] = [];

@@ -36,6 +36,10 @@ angular.module('skuapso-tree', [])
       element.find('>ul').remove();
       if (scope.childs && scope.childs.length > 0) {
         ul = element.append('<ul></ul>').find('>ul');
+        ul.on('$destroy', function() {
+          console.debug('ul destroyed');
+          $(this).data().$scope.$emit('destroed', 'childs.length');
+        });
         for (i = 0; i < len; i++) {
           item = scope.childs[i];
           newElem = ul.append('<li ' + item.type + '="' + item.id + '"></li>').find('li:last-child');

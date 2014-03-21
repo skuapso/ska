@@ -15,6 +15,11 @@ var $directive = function($type, $childs) {
             + '" data-id="{{id}}">'
             + '{{title}}'
             + '</div>');
+      div.on('$destroy', function() {
+        console.debug('div destroyed ' + obj.type + ' ' + obj.id);
+        console.error('надо как-то автоматизировать получение наблюдаемых частей');
+        $(this).data().$scope.$emit('destroed', 'id', 'title');
+      });
       $element.find('>div.' + $type).remove();
       $element.prepend(div);
       compile(div)(obj);
