@@ -88,9 +88,12 @@ angular.module('skuapso-init', [
               modal.dismiss('canceled');
             };
             scope.save = function() {
+              var data = Bert.encode(angular.safe_copy(this.diff())).hex;
               scope.disabled = true;
-              var postData = data.encode(this.diff());
-              http.patch('/' + this.modal.type + '/' + this.modal.id, postData);
+              http.patch('/' + this.modal.type + '/' + this.modal.id, data)
+                .success(function(data) {
+                  scope.disabled = false;
+                });
             };
           }];
 
