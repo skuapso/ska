@@ -23,4 +23,11 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-  {ok, {{one_for_one, 5, 10}, []}}.
+  Event = {ska_event
+          ,{ska_event, start_link, []}
+          ,permanent
+          ,5000
+          ,worker
+          ,[ska_event]
+          },
+  {ok, {{one_for_one, 5, 10}, [Event]}}.
