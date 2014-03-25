@@ -67,6 +67,14 @@ $(function() {
     }
     return destination;
   };
+
+  if (!angular.isRegExp) angular.isRegExp = function(value) {
+    return toString.call(value) === '[object RegExp]';
+  };
+
+  if (!angular.isWindow) angular.isWindow = function(obj) {
+    return obj && obj.document && obj.location && obj.alert && obj.setInterval;
+  };
 });
 Array.prototype.remove = function() {
     var what, a = arguments, L = a.length, ax;
