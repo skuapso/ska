@@ -116,6 +116,7 @@ angular.module('skuapso-init', [
     '$filter',
     'bullet',
     'digest',
+    'watcherExp',
     'skuapso-init',
     'skuapso-objects',
     'skuapso-owners',
@@ -123,7 +124,7 @@ angular.module('skuapso-init', [
     'skuapso-objects-models',
     'skuapso-specializations',
     'skuapso-terminals',
-    function(http, root, filter, bullet, digest,
+    function(http, root, filter, bullet, digest, watcherExp,
       init, objects, owners, groups, objectsModels, spec, terminals) {
       var data = this, emptyArray = [], childs = {};
 
@@ -149,7 +150,25 @@ angular.module('skuapso-init', [
           item = data[items[i].type + 's'][items[i].id] = init[items[i].type](items[i]);
           bullet.send({subscribe: item.ref});
           item.$on('destroed', function() {
-            console.debug('destroed');
+            var ev = arguments[0],
+                watchers = ev.currentScope.$$watchers,
+                updated = new Array(),
+                i = 0,
+                l = watchers.length,
+                keep;
+            delete arguments[0];
+            for (i; i < l; i++) {
+              keep = true;
+              angular.forEach(arguments, function(exp) {
+                if (watcherExp(watchers[i]) == exp) {
+                  keep = false;
+                }
+              });
+              if (keep) {
+                updated.push(watchers[i]);
+              }
+            }
+            ev.currentScope.$$watchers = updated;
           });
           if (!item.parent) continue;
           if (!childs[item.parent.type + '_' + item.parent.id]) {
