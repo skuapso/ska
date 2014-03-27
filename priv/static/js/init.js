@@ -74,6 +74,7 @@ angular.module('skuapso-init', [
           scope.diff = function() {
             var id, diff = null, original = data.data[this.modal.type + 's'][this.modal.id];
             for (id in this.modal) {
+              if (id.charAt(0) == '$') continue;
               if (this.modal[id] != original[id]) {
                 if (angular.isFunction(this.modal[id])) continue;
                 if (!diff) diff = {};
