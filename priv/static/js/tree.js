@@ -37,8 +37,9 @@ angular.module('skuapso-tree', [])
       if (scope.childs && scope.childs.length > 0) {
         ul = element.append('<ul></ul>').find('>ul');
         ul.on('$destroy', function() {
-          console.debug('ul destroyed');
-          $(this).data().$scope.$emit('destroed', 'childs.length');
+          angular.forEach($(this).data().$scope.childs, function(scope) {
+            scope.$emit('destroed', 'childs.length', 'collapsed', 'childs.length==0');
+          });
         });
         for (i = 0; i < len; i++) {
           item = scope.childs[i];

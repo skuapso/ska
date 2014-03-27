@@ -8,6 +8,7 @@ var $directive = function($type, $childs) {
   return ['skuapso-data', '$compile', function(data, compile) {
     var def = {};
 
+    console.warn('надо как-то автоматизировать получение наблюдаемых частей');
     def.link = function($scope, $element, $attrs) {
       var obj = data.get({type: $type, id: $attrs[$type]});
       var div = $('<div class="context-menu ' + $type
@@ -16,13 +17,11 @@ var $directive = function($type, $childs) {
             + '{{title}}'
             + '</div>');
       div.on('$destroy', function() {
-        console.debug('div destroyed ' + obj.type + ' ' + obj.id);
-        console.error('надо как-то автоматизировать получение наблюдаемых частей');
         $(this).data().$scope.$emit('destroed', 'id', 'title');
       });
       $element.find('>div.' + $type).remove();
-      $element.prepend(div);
       compile(div)(obj);
+      $element.prepend(div);
       obj.$digest();
     };
 
@@ -99,7 +98,6 @@ skuapsoModule
 .filter('toArray', function() {
   return function(input) {
     var i, output = [];
-    console.debug('input is %o', input);
     for (i in input) {
       output.push(input[i]);
     }
