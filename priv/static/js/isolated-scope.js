@@ -43,9 +43,7 @@ angular.module('isolated-scope', [])
         scope.$digest = newDigest;
       }
 
-      tmp = scopes;
       this.install(root);
-//      setTimeout(run, 100);
     }
 ])
 .provider('isolatedScope', ['$rootScopeProvider', function(rootProvider) {
@@ -57,24 +55,21 @@ angular.module('isolated-scope', [])
     };
   }];
 }])
-/*.run(['$rootScope', function(root, skRoot) {
-  var oldNew = root.constructor.prototype.$new;
-  root.constructor.prototype.$new = function(isolated) {
-    var scope = oldNew.call(this, isolated);
-    if (isolated) {
-      scope.$$isolated = true;
-      scope.$root = null;
-      scope.$parent = null;
-    } else {
-      if (scope.$$isolated) delete scope.$$isolated;
+.service('watcherExp', [function() {
+  return function watcherExp(watcher) {
+    if (!watcher.exp) throw('watcherExp: no exp');
+    if (!angular.isFunction(watcher.exp)) {
+      if (watcher.parts) {
+        if (watcher.parts[1]) {
+          throw ('watcherExp: to many parts');
+        } else {
+          return watcher.parts[0].exp;
+        }
+      } else {
+        return watcher.exp;
+      }
     }
-    return scope;
-  };
-
+    return watcherExp(watcher.exp);
+  }
 }])
-.service('isolateScopeProvider', function() {})
-.config(['$rootScopeProvider', 'isolateScopeProvider', function(rsp, skRoot) {
-  angular.extend(skRoot, rsp);
-}])
-.service('sk-root', function() {}) */
 ;
