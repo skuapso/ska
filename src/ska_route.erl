@@ -79,6 +79,7 @@ route(?MODULE, read, []) ->
     ") S",
   ska:sql(execute, {Query, []});
 
+route(_, update, [_]) -> true;
 route(Target, update, [IdBin | Args]) ->
   {Schema, Table} = Target:model(),
   Id = binary_to_integer(IdBin),
