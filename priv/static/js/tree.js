@@ -48,12 +48,10 @@ angular.module('skuapso-tree', [])
         compile(element.contents())(scope);
         for (i = 0; i < len; i++) {
           item = scope.childs[i];
-          if (item.childs.length) {
-            newElem = element.find('li[' + item.type + '=' + item.id +']');
-            newElem.attr('list', '');
-            newElem = compile(newElem)(item);
-            item.$digest();
-          }
+          newElem = element.find('li[' + item.type + '=' + item.id +']');
+          newElem.attr('list', '');
+          newElem = compile(newElem)(item);
+          item.$digest();
         }
       }
     };
