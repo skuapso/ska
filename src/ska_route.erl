@@ -46,7 +46,7 @@ parse(Req, State) ->
            true ->
              {ok, PostData, Req2} = cowboy_req:body(Req),
              debug("decoding ~w", [PostData]),
-             DecodedData = decode(PostData),
+             DecodedData = ska:decode(PostData),
              debug("decoded ~w", [DecodedData]),
              {GetArgs ++ DecodedData, Req2}
          end,

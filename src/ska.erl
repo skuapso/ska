@@ -73,4 +73,7 @@ sql(Req, Data) ->
 
 decode(Data) ->
   alert("should be safe"),
-  binary_to_term(typextfun:from_hex(Data), []).
+  decode1(binary_to_term(typextfun:from_hex(Data), [])).
+
+decode1(null) -> [];
+decode1(L) when is_list(L) -> L.
