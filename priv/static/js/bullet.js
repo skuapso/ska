@@ -51,7 +51,19 @@ angular.module('websocket.bullet', [])
     return new Bullet(this.url);
   }];
 
-  this.url = 'ws://localhost:8000/ws';
+  this.ssl = false;
+  this.host = location.host;
+  this.uri = 'ws';
+
+  Object.defineProperty(this, 'url', {
+    get: function() {
+      var urlParts = ['ws', this.host, this.uri];
+      if (this.ssl) urlParts[0] = urlParts[0] + 's';
+      urlParts[0] = urlParts[0] + ':/';
+      return urlParts.join('/');
+    }
+  });
+
   this.defaults = {
     disableWebSocket: false,
     disableEventSource: false,
