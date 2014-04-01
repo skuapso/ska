@@ -1,6 +1,6 @@
 'use strict';
 
-var $directive = function($type, $childs) {
+var $directive = function($type) {
 	$.contextMenu({
 		selector: 'div.context-menu.' + $type,
 		items: $.contextMenu.fromMenu('menu#' + $type)
@@ -58,9 +58,8 @@ skuapsoModule
 .controller('management', ['$rootScope', '$scope', function(root, scope) {
   scope.controls = root.controls;
 }])
-.directive('owner', $directive('owner', ['owner', 'group']))
-.directive('group', $directive('group', ['group', 'object']))
-.directive('object', $directive('object', []))
+.directive('group', $directive('group'))
+.directive('object', $directive('object'))
 .directive('skIf', ['$compile', function(compile) {
   var def = {};
 

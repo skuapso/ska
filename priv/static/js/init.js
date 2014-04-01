@@ -12,9 +12,8 @@ angular.module('skuapso-init', [
     '$http',
     function(is, root, modal, http) {
       var types = {
-        owner: {sortingValue: 0},
-        group: {sortingValue: 1},
-        object: {sortingValue: 2}
+        group: {sortingValue: 0},
+        object: {sortingValue: 1}
       };
 
       this.new = function(t, i, prop) {
@@ -119,18 +118,16 @@ angular.module('skuapso-init', [
     'watcherExp',
     'skuapso-init',
     'skuapso-objects',
-    'skuapso-owners',
     'skuapso-groups',
     'skuapso-objects-models',
     'skuapso-specializations',
     'skuapso-terminals',
     function(http, root, filter, bullet, digest, watcherExp,
-      init, objects, owners, groups, objectsModels, spec, terminals) {
+      init, objects, groups, objectsModels, spec, terminals) {
       var data = this, emptyArray = [], childs = {};
 
       root.loaded = false;
       this.objects = objects;
-      this.owners = owners;
       this.groups = groups;
       this.object_models = objectsModels;
       this.specializations = spec;
@@ -200,8 +197,8 @@ angular.module('skuapso-init', [
         }
         Object.defineProperty(root, 'childs', {
           get: function() {
-            return childs['owner_null']
-              ? childs['owner_null']
+            return childs['group_null']
+              ? childs['group_null']
               : emptyArray;
           }
         });

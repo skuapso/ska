@@ -11,7 +11,7 @@ angular.module('skuapso-init')
         Object.defineProperty(o, 'parent', {
           get: function() {
             return this.parent_id ? {type: 'group', id: this.parent_id}
-            : {type: 'owner', id: this.owner_id};
+            : {type: 'group', id: null};
           }
         });
         Object.defineProperty(o, 'parent_group', {

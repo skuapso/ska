@@ -57,10 +57,7 @@ parse(Req, State) ->
 route(?MODULE, read, []) ->
   Query =
     "select array_to_json(array_agg(row_to_json)) as json from("
-      "select row_to_json(owners) from ("
-        "select *,'owner' as \"type\" from owners.data"
-      ") owners"
-      " union all select row_to_json(groups) from ("
+      "select row_to_json(groups) from ("
         "select *,'group' as \"type\" from groups.tree"
       ") groups"
       " union all select row_to_json(objects) from ("
