@@ -58,7 +58,7 @@ route(?MODULE, read, []) ->
   Query =
     "select array_to_json(array_agg(row_to_json)) as json from("
       "select row_to_json(groups) from ("
-        "select *,'group' as \"type\" from groups.tree"
+        "select *,'group' as \"type\" from objects.groups"
       ") groups"
       " union all select row_to_json(objects) from ("
         "select *,'object' as \"type\" from objects.data"
