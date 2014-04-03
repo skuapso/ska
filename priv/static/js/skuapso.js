@@ -84,6 +84,10 @@ skuapsoModule
 
   return def;
 }])
+.controller('menu', ['$scope', function(scope) {
+  scope.editUsers = function() {
+  };
+}])
 .config(['datepickerConfig', function(config) {
   config.showWeeks = false;
   config.startingDay = 1;

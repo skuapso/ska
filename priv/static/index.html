@@ -19,6 +19,9 @@
   </menu>
 
   <div sk-if='loaded'>
+    <ul ng-controller='menu'>
+      <li ng-click='editUsers()'>Редактировать пользователей</li>
+    </ul>
     <div ng-controller='management'>
       <span>
         <input datepicker-popup type='text'
