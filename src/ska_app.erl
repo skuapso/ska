@@ -13,7 +13,8 @@ start(_StartType, _StartArgs) ->
   {ok, _} = cowboy:start_http(http, 1,
                               [{port, 8000}],
                               [
-        {env, [{dispatch, dispatch_rules()}]}
+        {env, [{dispatch, dispatch_rules()}]},
+        {middlewares, [cowboy_router, ska_auth, cowboy_handler]}
   ]),
   ska_sup:start_link().
 

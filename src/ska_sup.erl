@@ -30,4 +30,11 @@ init([]) ->
           ,worker
           ,[ska_event]
           },
-  {ok, {{one_for_one, 5, 10}, [Event]}}.
+  Session = {ska_session
+            ,{ska_session, start_link, []}
+            ,permanent
+            ,5000
+            ,worker
+            ,[ska_session]
+            },
+  {ok, {{one_for_one, 5, 10}, [Event, Session]}}.

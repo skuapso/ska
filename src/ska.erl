@@ -64,7 +64,7 @@ to_time(Time) when is_binary(Time) ->
   {binary_to_integer(H), binary_to_integer(M), S}.
 
 sql(Req, Data) ->
-  case psql:execute(Req, Data, infinity) of
+  case ska_session:get({psql, {Req, Data}}, infinity) of
     [] -> [];
     [[{json, null}]] -> [];
     [[{json, Vals}]] -> Vals;

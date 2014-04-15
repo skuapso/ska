@@ -8,5 +8,13 @@
                   stdlib
                  ]},
   {mod, { ska_app, []}},
-  {env, []}
+  {env, [
+    {session, [
+      {host, "localhost"},
+      {port, 5432},
+      {database, "skuapso"},
+      {max_connections, 3},
+      {queue_size, 25}
+    ]}
+  ]}
  ]}.
