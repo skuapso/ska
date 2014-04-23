@@ -96,6 +96,7 @@ angular.module('skuapso-init', [
 
       this.create = function(props) {
         var item, parentChilds, parentChildsId;
+        if (this.data.get(props)) return;
         item = this.data[props.type + 's'][props.id] = this[props.type](props);
         bullet.send({subscribe: item.ref});
         item.$on('destroed', function() {
