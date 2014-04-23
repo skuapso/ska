@@ -66,8 +66,8 @@ angular.module('websocket.bullet', [])
 
   this.defaults = {
     disableWebSocket: false,
-    disableEventSource: false,
-    disableXHRPolling: false
+    disableEventSource: true,
+    disableXHRPolling: true
   };
   Object.defineProperty(this, 'state', {
     get: function() {
