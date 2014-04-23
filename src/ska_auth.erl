@@ -7,8 +7,6 @@
 execute(Req, State) ->
   debug("ska_auth ~w", [State]),
   case cowboy_req:parse_header(<<"authorization">>, Req) of
-    {ok, {<<"basic">>, {<<"il">>, <<"12">>}}, Req1} ->
-      unauthenticated(Req1, State);
     {ok, Auth, Req1} when Auth =/= undefined ->
       authenticated(Auth, Req1, State);
     _ ->

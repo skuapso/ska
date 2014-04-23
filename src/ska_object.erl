@@ -9,8 +9,23 @@
 model() -> {objects, data}.
 
 parse(Args) ->
-  alert("returning same args"),
-  Args.
+  parse(Args, []).
+
+parse([{Attr, Val} | Args], Parsed)
+  when
+    Attr =:= id;
+    Attr =:= group_id;
+    Attr =:= no;
+    Attr =:= model_id;
+    Attr =:= specialization_id;
+    Attr =:= deleted
+  ->
+  parse(Args, [{Attr, Val} | Parsed]);
+parse([_ | Args], Parsed) ->
+  parse(Args, Parsed);
+parse([], Parsed) ->
+  Parsed.
+
 
 read([ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
   {ValCondition, Join, AddCondition, AddValues} = track_condition(Mod),

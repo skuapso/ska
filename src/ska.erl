@@ -53,6 +53,7 @@ to_date(Date) when is_binary(Date) ->
 
 to_time(Time) when is_binary(Time) ->
   [H, M, SBin] = case re:split(Time, ":") of
+                [HH] -> [HH, <<"0">>, <<"0.0">>];
                 [HH, MM] -> [HH, MM, <<"0.0">>];
                 [_, _, _] = V -> V
               end,

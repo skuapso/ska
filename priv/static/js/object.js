@@ -30,10 +30,16 @@ angular.module('skuapso-init')
         }
         Object.defineProperty(o, 'title', {
           get: function() {
+            var title = this.sortingTitle;
+            title = this.terminal ? title : '* ' + title;
+            return title;
+          }
+        });
+        Object.defineProperty(o, 'sortingTitle', {
+          get: function() {
             var title = this.no;
             title = this.model ? this.model.title + ' ' + title : title;
             title = this.specialization ? this.specialization.title + ' ' + title : title;
-            title = this.terminal ? title : '* ' + title;
             return title;
           }
         });
@@ -68,6 +74,13 @@ angular.module('skuapso-init')
         });
         Object.defineProperty(o, 'terminal', {
           get: function() {
+            var obj = this;
+            if (this.terminal_id && !Class.data.terminals[this.terminal_id]) {
+              http.get('terminal/' + this.terminal_id).success(function(data) {
+                Class.create(data);
+                obj.$digest();
+              })
+            };
             return Class.data.terminals[this.terminal_id];
           },
           set: function(terminal) {
@@ -75,8 +88,8 @@ angular.module('skuapso-init')
           }
         });
 
-          return o;
-        };
+        return o;
+      };
 
       Class.object = this.new;
     }]

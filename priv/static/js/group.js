@@ -4,7 +4,8 @@ angular.module('skuapso-init')
 .service('skuapso-groups', ['skuapso-init-group', function() {}])
 .service('skuapso-init-group', [
     'skuapso-init',
-    function(Class, root, modal, http) {
+    '$rootScope',
+    function(Class, root) {
       this.new = function(props) {
         var o = Class.new('group', props.id, props);
 
@@ -23,6 +24,27 @@ angular.module('skuapso-init')
           }
         });
 
+        o.add_sub = function() {
+          var scope = root.$new(true);
+          scope.header = 'Добавление подгруппы';
+          scope.title = this.title;
+          scope.modal = Class.group({id: null, type: 'group', parent_id: this.id});
+          var onSuccess = function(data, modal) {
+            console.debug('success');
+            modal.dismiss('ok');
+          };
+
+          Class.modal(scope, 'create', {success: onSuccess});
+        }
+
+        o.add_object = function() {
+          var scope = root.$new(true);
+          scope.header = 'Добавление ТС';
+          scope.title = '';
+          scope.modal = Class.object({id: null, type: 'object', group_id: this.id});
+
+          Class.modal(scope, 'create');
+        }
         return o;
       };
 

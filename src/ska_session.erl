@@ -36,6 +36,9 @@
 -include_lib("logger/include/log.hrl").
 
 -define(InvalidPass, {{{badmatch,{error,invalid_password}},_L},_L1}).
+
+%-define(link(X), erlang:monitor(process, X)).
+-define(link(X), erlang:link(X)).
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -55,6 +58,7 @@ link(Auth) ->
 
 get({psql, Request}, Timeout) ->
   [[PoolPid]] = ets:match(?MODULE, {{worker, self()}, {pool, '$1'}}),
+  debug("request to pool: ~w", [Request]),
   psql_pool:request(PoolPid, Request, Timeout).
 
 %%%===================================================================
@@ -128,7 +132,7 @@ handle_call({link, Pid, Auth}, _From, State) ->
             [PoolPid] ->
               trace("found pool"),
               debug("linking ~w to ~w", [Pid, Auth]),
-              erlang:monitor(process, Pid),
+              ?link(Pid),
               ets:insert(?MODULE, {{worker, Pid}, {pool, PoolPid}}),
               ok
           end,

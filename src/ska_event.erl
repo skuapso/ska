@@ -13,6 +13,7 @@
 %% API
 -export([start_link/0]).
 -export([notify/4]).
+-export([notify/5]).
 -export([subscribe/1]).
 -export([unsubscribe/1]).
 
@@ -33,6 +34,9 @@
 %%%===================================================================
 notify(From, Object, Data, _Timeout) ->
   gen_server:cast(?MODULE, {event, From, Object, Data}).
+
+notify(_From, Event, Who, Object, _Timeout) ->
+  gen_server:cast(?MODULE, {Event, Who, Object}).
 
 subscribe(Object) ->
   gen_server:cast(?MODULE, {subscribe, self(), Object}).
@@ -68,6 +72,7 @@ init([]) ->
   trace("init"),
   ets:new(?MODULE, [named_table, ordered_set, protected]),
   hooks:install(ui, 10, fun ?MODULE:notify/4),
+  hooks:install({ui, unsubscribe}, 10, fun ?MODULE:notify/5),
   process_flag(trap_exit, true),
   {ok, #state{}}.
 
@@ -108,6 +113,7 @@ handle_cast({event, _From, Object, _Data} = Event, State) ->
   {noreply, State};
 handle_cast({subscribe, Pid, Object}, State) ->
   trace("subscribing ~w to ~w", [Pid, Object]),
+  alert("should check permissions to view ~w", [Object]),
   link(Pid),
   Subscribed = subscribed(Object),
   ets:insert(?MODULE, {Object, [Pid | Subscribed]}),
@@ -119,12 +125,17 @@ handle_cast({unsubscribe, Pid, all}, State) ->
             end, Objects),
   unlink(Pid),
   {noreply, State};
-handle_cast({unsubscribe, Pid, Object}, State) ->
+handle_cast({unsubscribe, Pid, Object}, State) when is_pid(Pid) ->
   trace("unsubscribing ~w from ~w", [Pid, Object]),
   Subscribed = subscribed(Object),
   debug("subscribed: ~w", [Subscribed]),
   ets:insert(?MODULE, {Object, lists:delete(Pid, Subscribed)}),
   debug("new subscribed ~w", [subscribed(Object)]),
+  {noreply, State};
+handle_cast({unsubscribe, {user, User}, Object}, State) ->
+  trace("unsubscribing user ~w from ~w", [User, Object]),
+  Pids = lists:flatten(ets:match(?MODULE, {{user, User}, '$2'})),
+  [handle_cast({unsubscribe, Pid, Object}, State) || Pid <- Pids],
   {noreply, State};
 handle_cast(_Msg, State) ->
   warning("unhandled cast ~w", [_Msg]),

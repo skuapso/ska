@@ -4,8 +4,13 @@ var $a = function(el) {return angular.element($(el));};
 var $s = function() {return $a('html').scope();};
 var $i = function(el) {return $s().$item(el);};
 var root = function() {return $('html').data('$scope');};
+var emptyArray = [];
 
 var contextMenuClick = function(ev) {
+  if (!root().data.get($('.context-menu-active').data())[$(this).data('action')]) {
+    console.error('no function %o', $(this).data('action'));
+    return;
+  }
   root().data.get($('.context-menu-active').data())[$(this).data('action')]();
 };
 
