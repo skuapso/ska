@@ -17,6 +17,8 @@
 -export([set_cookie/2]).
 -export([delete_cookie/1]).
 
+-export([ets/0]).
+
 %% gen_server callbacks
 -export([init/1]).
 -export([handle_call/3]).
@@ -75,6 +77,9 @@ set_cookie(Auth, Cookie) ->
 
 delete_cookie(Cookie) ->
   gen_server:cast(?MODULE, {delete_cookie, Cookie}).
+
+ets() ->
+  ets:match(?MODULE, '$1').
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================

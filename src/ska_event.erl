@@ -17,6 +17,8 @@
 -export([subscribe/1]).
 -export([unsubscribe/1]).
 
+-export([ets/0]).
+
 %% gen_server callbacks
 -export([init/1]).
 -export([handle_call/3]).
@@ -43,6 +45,9 @@ subscribe(Object) ->
 
 unsubscribe(Object) ->
   gen_server:cast(?MODULE, {unsubscribe, self(), Object}).
+
+ets() ->
+  ets:match(?MODULE, '$1').
 %%--------------------------------------------------------------------
 %% @doc
 %% Starts the server
