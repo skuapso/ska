@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('skuapso-init', [
+    'skuapso-http',
     'ui.bootstrap',
     'websocket.bullet',
     'isolated-scope'
@@ -9,7 +10,7 @@ angular.module('skuapso-init', [
     'isolatedScope',
     '$rootScope',
     '$modal',
-    '$http',
+    'skuapso-http',
     'bullet',
     'digest',
     'watcherExp',
@@ -148,7 +149,6 @@ angular.module('skuapso-init', [
         }, angular.equals);
         if (root.loaded) {
           this.childs[parentChildsId] = filter('orderBy')(parentChilds, ['sortingValue', 'title']);
-          console.debug('item is %o', item);
           this.data.get(item.parent).$digest();
         }
       };
@@ -209,7 +209,7 @@ angular.module('skuapso-init', [
 
     }])
 .service('skuapso-data', [
-    '$http',
+    'skuapso-http',
     '$rootScope',
     '$filter',
     'bullet',
@@ -257,22 +257,9 @@ angular.module('skuapso-init', [
         });
         root.loaded = true;
       });
-      http.patch = function(url, data, config) {
-        return http(angular.extend(config || {}, {
-          method: 'patch',
-          url: url,
-          data: data
-        }));
-      };
-      http['create']  = http['put'];
-      http['read']    = http['get'];
-      http['update']  = http['patch'];
-      http['delete']  = http['delete'];
       bullet.on = {
         message: function(e) {
-          console.debug('got message %o', e.data);
           var d = angular.fromJson(e.data);
-          console.debug('json %o', d);
           init[d.action](d.data);
         },
         send: function(obj) {

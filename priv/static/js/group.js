@@ -30,7 +30,6 @@ angular.module('skuapso-init')
           scope.title = this.title;
           scope.modal = Class.group({id: null, type: 'group', parent_id: this.id});
           var onSuccess = function(data, modal) {
-            console.debug('success');
             modal.dismiss('ok');
           };
 

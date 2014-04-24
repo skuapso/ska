@@ -7,7 +7,7 @@ angular.module('skuapso-init')
     '$rootScope',
     '$modal',
     '$filter',
-    '$http',
+    'skuapso-http',
     function(Class, root, modal, filter, http) {
       this.new = function(props) {
         var o = Class.new('object', props.id, props);
