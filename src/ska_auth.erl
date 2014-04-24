@@ -5,28 +5,39 @@
 -include_lib("logger/include/log.hrl").
 
 execute(Req, State) ->
-  debug("ska_auth ~w", [State]),
+  trace("ska_auth ~w", [State]),
   case cowboy_req:parse_header(<<"authorization">>, Req) of
     {ok, Auth, Req1} when Auth =/= undefined ->
       authenticated(Auth, Req1, State);
     _ ->
-      unauthenticated(Req, State)
+      case cowboy_req:cookie(<<"skuapso-session">>, Req) of
+        {Val, Req1} when Val =/= undefined ->
+          authenticated({cookie, Val}, Req1, State);
+        _ ->
+          unauthenticated(Req, State)
+      end
   end.
 
 unauthenticated(Req, _State) ->
   set_auth_header(Req).
 
 authenticated(Auth, Req, State) ->
-  check_authorization(ska_session:link(Auth), Req, State).
+  check_authorization(ska_session:link(Auth), Auth, Req, State).
 
-check_authorization(ok, Req, State) ->
+check_authorization(ok, Auth, Req, State) ->
   trace("authorized"),
-  {ok, Req, State};
-check_authorization({error, invalid_password}, Req, _State) ->
-  trace("authorization failed"),
-  set_auth_header(Req);
-check_authorization(_, Req, _State) ->
-  trace("server error"),
+  Req1 = upsert_cookie(Auth, Req),
+  {ok, Req1, State};
+check_authorization(Reply, Auth, Req, _State)
+  when
+    Reply =:= {error, invalid_password};
+    Reply =:= {error, not_related_cookie}
+    ->
+  warning("authorization failed ~w", [Reply]),
+  Req1 = delete_cookie(Auth, Req),
+  set_auth_header(Req1);
+check_authorization(Reply, Auth, Req, _State) ->
+  alert("auth check failed: ~w", [{Auth, Reply}]),
   {error, 500, Req}.
 
 set_auth_header(Req) ->
@@ -42,3 +53,24 @@ set_auth_header(Req) ->
 %                                    >>
 %                                    , Req1),
   {error, 401, Req1}.
+
+upsert_cookie(Auth, Req) ->
+  trace("upserting cookie"),
+  case cowboy_req:cookie(<<"skuapso-session">>, Req) of
+    {undefined, Req1} -> set_cookie(Auth, Req1);
+    {Val, Req1} ->
+      ska_session:set_cookie(Auth, Val),
+      trace("returning from upsert"),
+      Req1
+  end.
+
+set_cookie(Auth, Req) ->
+  trace("setting cookie"),
+  Val = typextfun:to_hex(term_to_binary(erlang:now())),
+  ska_session:set_cookie(Auth, Val),
+  cowboy_req:set_resp_cookie(<<"skuapso-session">>, Val, [{path, "/"}], Req).
+
+delete_cookie(Auth, Req) ->
+  trace("deleting cookie"),
+  ska_session:delete_cookie(Auth),
+  cowboy_req:set_resp_cookie(<<"skuapso-session">>, <<>>, [{path, "/"}], Req).

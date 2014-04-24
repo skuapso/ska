@@ -9,11 +9,9 @@
 
 init(_Transport, Req, _Opts, _Active) ->
   trace("connected"),
-  {Req1, User} = case cowboy_req:parse_header(<<"authorization">>, Req) of
-                   {ok, {<<"basic">>, {U, _Pass}}, R} -> {R, U}
-                 end,
+  {ok, User} = ska_session:get_user(),
   ska_event:subscribe({user, User}),
-  {ok, Req1, undefined_state}.
+  {ok, Req, undefined_state}.
 
 stream(<<"ping">>, Req, State) ->
   {ok, Req, State};

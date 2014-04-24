@@ -13,6 +13,9 @@
 -export([start_link/0]).
 -export([link/1]).
 -export([get/2]).
+-export([get_user/0]).
+-export([set_cookie/2]).
+-export([delete_cookie/1]).
 
 %% gen_server callbacks
 -export([init/1]).
@@ -57,10 +60,21 @@ link(Auth) ->
   gen_server:call(?MODULE, {link, self(), Auth}).
 
 get({psql, Request}, Timeout) ->
-  [[PoolPid]] = ets:match(?MODULE, {{worker, self()}, {pool, '$1'}}),
+  [[Auth]] = ets:match(?MODULE, {{worker, self()}, '$1'}),
+  [[PoolPid]] = ets:match(?MODULE, {{pool, Auth}, '$1'}),
   debug("request to pool: ~w", [Request]),
   psql_pool:request(PoolPid, Request, Timeout).
 
+get_user() ->
+  [[{<<"basic">>, {User, _}}]] = ets:match(?MODULE, {{worker, self()}, '$1'}),
+  {ok, User}.
+
+set_cookie(Auth, _Cookie) when element(1, Auth) =:= cookie -> ok;
+set_cookie(Auth, Cookie) ->
+  gen_server:cast(?MODULE, {set_cookie, Auth, Cookie}).
+
+delete_cookie(Cookie) ->
+  gen_server:cast(?MODULE, {delete_cookie, Cookie}).
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -115,25 +129,30 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_call({link, Pid, {cookie, Cookie}}, From, State) ->
+  case lists:flatten(ets:match(?MODULE, {{cookie, '$1'}, Cookie})) of
+    [] -> {reply, {error, not_related_cookie}, State};
+    [Auth] -> handle_call({link, Pid, Auth}, From, State)
+  end;
 handle_call({link, Pid, Auth}, _From, State) ->
-  Reply = case lists:flatten(ets:match(?MODULE, {{auth, Auth}, {pool, '$1'}})) of
+  Reply = case lists:flatten(ets:match(?MODULE, {{pool, Auth}, '$1'})) of
             [] ->
               trace("starting new user pool"),
               case new_pool(Auth, State) of
                 {ok, PoolPid} ->
                   debug("linking ~w to ~w", [Pid, Auth]),
                   erlang:monitor(process, Pid),
-                  ets:insert(?MODULE, {{auth, Auth}, {pool, PoolPid}}),
-                  ets:insert(?MODULE, {{worker, Pid}, {pool, PoolPid}}),
+                  ets:insert(?MODULE, {{pool, Auth}, PoolPid}),
+                  ets:insert(?MODULE, {{worker, Pid}, Auth}),
                   ok;
                 Else ->
                   Else
               end;
-            [PoolPid] ->
+            [_PoolPid] ->
               trace("found pool"),
               debug("linking ~w to ~w", [Pid, Auth]),
               ?link(Pid),
-              ets:insert(?MODULE, {{worker, Pid}, {pool, PoolPid}}),
+              ets:insert(?MODULE, {{worker, Pid}, Auth}),
               ok
           end,
   trace("reply is ~w", [Reply]),
@@ -153,6 +172,13 @@ handle_call(_Request, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_cast({set_cookie, Auth, Cookie}, State) ->
+  ets:insert(?MODULE, {{cookie, Auth}, Cookie}),
+  {noreply, State};
+handle_cast({delete_cookie, Cookie}, State) ->
+  Auth = lists:flatten(ets:match(?MODULE, {{cookie, '$1'}, Cookie})),
+  [ets:delete(?MODULE, {cookie, X}) || X <- Auth],
+  {noreply, State};
 handle_cast(_Msg, State) ->
   warning("unhandled cast ~w", [_Msg]),
   {noreply, State}.
@@ -171,9 +197,9 @@ handle_info({'DOWN', _, process, Pid, Reason}, State) ->
   handle_info({'EXIT', Pid, Reason}, State);
 handle_info({'EXIT', Pid, _}, State) ->
   trace("died ~w", [Pid]),
-  case lists:flatten(ets:match(?MODULE, {{worker, Pid}, {pool, '$1'}})) of
-    [_PoolPid | Else] = Pools ->
-      emerg(Else =/= [], "worker registered to several pools: ~w", [Pools]),
+  case lists:flatten(ets:match(?MODULE, {{worker, Pid}, '$1'})) of
+    [_Auth | Else] = Auths ->
+      emerg(Else =/= [], "worker registered to several auths: ~w", [Auths]),
       debug("unregistering worker ~w", [Pid]),
       ets:delete(?MODULE, {worker, Pid});
     [] ->
@@ -204,7 +230,7 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 terminate(_Reason, _State) ->
-  warning("terminating with reason ~w", [_Reason]),
+  warning("terminating with reason ~w, ets: ~w", [_Reason, ets:match(?MODULE, '$1')]),
   ok.
 
 %%--------------------------------------------------------------------
