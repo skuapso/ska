@@ -11,7 +11,8 @@ execute(Req, State) ->
       authenticated(Auth, Req1, State);
     _ ->
       case cowboy_req:cookie(<<"skuapso-session">>, Req) of
-        {Val, Req1} when Val =/= undefined ->
+        {Val, Req1} when Val =/= undefined, Val =/= <<>> ->
+          debug("cookie ~w", [Val]),
           authenticated({cookie, Val}, Req1, State);
         _ ->
           unauthenticated(Req, State)
@@ -57,7 +58,7 @@ set_auth_header(Req) ->
 upsert_cookie(Auth, Req) ->
   trace("upserting cookie"),
   case cowboy_req:cookie(<<"skuapso-session">>, Req) of
-    {undefined, Req1} -> set_cookie(Auth, Req1);
+    {Val, Req1} when Val =:= undefined; Val =:= <<>> -> set_cookie(Auth, Req1);
     {Val, Req1} ->
       ska_session:set_cookie(Auth, Val),
       trace("returning from upsert"),
@@ -73,4 +74,4 @@ set_cookie(Auth, Req) ->
 delete_cookie(Auth, Req) ->
   trace("deleting cookie"),
   ska_session:delete_cookie(Auth),
-  cowboy_req:set_resp_cookie(<<"skuapso-session">>, <<>>, [{path, "/"}], Req).
+  cowboy_req:set_resp_cookie(<<"skuapso-session">>, <<>>, [{path, "/"}, {max_age, 0}], Req).
