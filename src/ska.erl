@@ -65,6 +65,7 @@ to_time(Time) when is_binary(Time) ->
   {binary_to_integer(H), binary_to_integer(M), S}.
 
 sql(Req, Data) ->
+  debug("getting ~w", [{Req, Data}]),
   case ska_session:get({psql, {Req, Data}}, infinity) of
     [] -> [];
     [[{json, null}]] -> [];
@@ -73,8 +74,13 @@ sql(Req, Data) ->
   end.
 
 decode(Data) ->
+  decode(Data, [safe]).
+
+decode(Data, Opts) when Opts =/= [safe] ->
   alert("should be safe"),
-  decode1(binary_to_term(typextfun:from_hex(Data), [])).
+  decode1(binary_to_term(typextfun:from_hex(Data), Opts));
+decode(Data, Opts) ->
+  decode1(binary_to_term(typextfun:from_hex(Data), Opts)).
 
 decode1(null) -> [];
 decode1(L) when is_list(L) -> L.
