@@ -8,7 +8,8 @@ angular.module('skuapso-init')
     '$modal',
     '$filter',
     'skuapso-http',
-    function(Class, root, modal, filter, http) {
+    'skuapso-map',
+    function(Class, root, modal, filter, http, map) {
       this.new = function(props) {
         var o = Class.new('object', props.id, props);
 
@@ -23,7 +24,7 @@ angular.module('skuapso-init')
             for (i = 0; i < data.length; i++) {
               line = L.polyline(data[i].track);
               line.bindPopup(data[i].object_id + '<br>' + data[i].min + '>>' + data[i].max);
-              line.addTo(map);
+              line.addTo(map.map);
             }
             //          map.fitBounds(lines.getBounds());
           });
