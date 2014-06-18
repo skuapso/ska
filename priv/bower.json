@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "dependencies": {
     "angular": ">=1.2.14 <=1.3",
-    "leaflet": ">=0.7.2",
+    "leaflet": "latest",
+    "leaflet-plugins": "latest",
+    "leaflet-2gis": "emikhalev/leaflet-2gis",
     "angular-bootstrap": "=0.10.0",
-    "jQuery-contextMenu": ">=1.6.5",
+    "jQuery-contextMenu": "latest",
     "bert.js": "latest"
   }
 }
