@@ -28,7 +28,16 @@ angular.module('skuapso-init')
             }
             //          map.fitBounds(lines.getBounds());
           });
-        }
+        };
+        o.mileage = function() {
+          var $from = filter('date')(root.controls.fromDateTime, 'psql');
+          var $to   = filter('date')(root.controls.toDateTime, 'psql');
+          var $url = '/object/' + this.id + '/mileage/'
+                    + $from + '/' + $to;
+          console.debug('url: %o', $url);
+          window.open($url);
+        };
+
         Object.defineProperty(o, 'title', {
           get: function() {
             var title = this.sortingTitle;

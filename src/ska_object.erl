@@ -39,7 +39,10 @@ read([ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
              <<>> -> <<>>;
              <<$,, T/binary>> -> T
            end,
-  [<<"[">>, Tracks , <<"]">>].
+  [<<"[">>, Tracks , <<"]">>];
+
+read([ObjectId, <<"mileage">>, FromDateTime, ToDateTime]) ->
+  [<<"[]">>].
 
 track_sql(ValCondition, Join, AddCondition) ->
   "select row_to_json(S1.*) as jsons from ("

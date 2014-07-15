@@ -12,13 +12,16 @@
 </head>
 <body>
   <menu type='context' id='group'>
-    <command label='Редактировать' data-action='edit'>
-    <command label='Добавить подгруппу' data-action='add_sub'>
-    <command label='Добавить ТС' data-action='add_object'>
+    <command label='Редактировать' data-action='edit'></command>
+    <command label='Добавить подгруппу' data-action='add_sub'></command>
+    <command label='Добавить ТС' data-action='add_object'></command>
   </menu>
   <menu type='context' id='object'>
-    <command label='Редактировать' data-action='edit'>
-    <command label='Трек' data-action='track'>
+    <command label='Редактировать' data-action='edit'></command>
+    <menu label='Отчеты'>
+      <command label='Трек' data-action='track'></command>
+      <command label='Пробег' data-action='mileage'></command>
+    </menu>
   </menu>
 
   <div sk-if='loaded'>
