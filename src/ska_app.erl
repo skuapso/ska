@@ -14,7 +14,7 @@ start(_StartType, _StartArgs) ->
                               [{port, 8000}],
                               [
         {env, [{dispatch, dispatch_rules()}]},
-        {middlewares, [cowboy_router, ska_auth, cowboy_handler]}
+        {middlewares, [cowboy_router, ska_auth, ska_handler]}
   ]),
   ska_sup:start_link().
 
