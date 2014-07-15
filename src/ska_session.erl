@@ -58,16 +58,18 @@
 start_link() ->
   gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+link(Pid) when is_pid(Pid) ->
+  gen_server:call(?MODULE, {link, self(), Pid});
 link(Auth) ->
   gen_server:call(?MODULE, {link, self(), Auth}).
 
 get({psql, Request}, Timeout) ->
   [[Auth]] = ets:match(?MODULE, {{worker, self()}, '$1'}),
   [[PoolPid]] = ets:match(?MODULE, {{pool, Auth}, '$1'}),
-  debug("request to pool: ~w", [Request]),
   psql_pool:request(PoolPid, Request, Timeout).
 
 get_user() ->
+  debug("ets: ~w",[ets:match(?MODULE, '$1')]),
   [[{<<"basic">>, {User, _}}]] = ets:match(?MODULE, {{worker, self()}, '$1'}),
   {ok, User}.
 
@@ -134,6 +136,18 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_call({link, ParentPid, Pid}, _From, State) when is_pid(Pid) ->
+  erlang:monitor(process, Pid),
+  Reply = case ets:match(?MODULE, {{worker, ParentPid}, '$1'}) of
+            [[Auth]] ->
+              debug("linking ~w to ~w", [Pid, Auth]),
+              ets:insert(?MODULE, {{worker, Pid}, Auth}),
+              ok;
+            Else ->
+              alert("linking pid ~w to ~w: wrong ets:match ~w", [Pid, ParentPid, Else]),
+              failed
+          end,
+  {reply, Reply, State};
 handle_call({link, Pid, {cookie, Cookie}}, From, State) ->
   case lists:flatten(ets:match(?MODULE, {{cookie, '$1'}, Cookie})) of
     [] -> {reply, {error, not_related_cookie}, State};
