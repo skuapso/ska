@@ -76,8 +76,8 @@ start_link() ->
 init([]) ->
   trace("init"),
   ets:new(?MODULE, [named_table, ordered_set, protected]),
-  hooks:install(ui, 10, fun ?MODULE:notify/4),
-  hooks:install({ui, unsubscribe}, 10, fun ?MODULE:notify/5),
+  hooks:install(ui, 10, {?MODULE, notify}),
+  hooks:install({ui, unsubscribe}, 10, {?MODULE, notify}),
   process_flag(trap_exit, true),
   {ok, #state{}}.
 
