@@ -74,7 +74,11 @@ sql(Req, Data) ->
   end.
 
 decode(Data) ->
-  decode(Data, [safe]).
+  Opts = case application:get_env(ska, safe_decode) of
+           {ok, false}-> [];
+           _          -> [safe]
+         end,
+  decode(Data, Opts).
 
 decode(Data, Opts) when Opts =/= [safe] ->
   alert("should be safe"),
