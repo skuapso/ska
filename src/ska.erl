@@ -10,6 +10,7 @@
 -export([to_datetime/1]).
 -export([sql/2]).
 -export([decode/1]).
+-export([answer/1]).
 
 -include_lib("logger/include/log.hrl").
 
@@ -64,8 +65,11 @@ to_time(Time) when is_binary(Time) ->
       end,
   {binary_to_integer(H), binary_to_integer(M), S}.
 
-sql(Req, Data) ->
-  debug("getting ~w", [{Req, Data}]),
+sql(Req, Data)
+  when
+    Req =:= function;
+    Req =:= update;
+    Req =:= insert ->
   case ska_session:get({psql, {Req, Data}}, infinity) of
     [] -> [];
     [[{json, null}]] -> [];
@@ -82,9 +86,16 @@ decode(Data) ->
 
 decode(Data, Opts) when Opts =/= [safe] ->
   alert("should be safe"),
-  decode1(binary_to_term(typextfun:from_hex(Data), Opts));
+  decode1(binary_to_term('_':from_hex(Data), Opts));
 decode(Data, Opts) ->
-  decode1(binary_to_term(typextfun:from_hex(Data), Opts)).
+  decode1(binary_to_term('_':from_hex(Data), Opts)).
 
 decode1(null) -> [];
 decode1(L) when is_list(L) -> L.
+
+answer({array, X}) ->
+  Vals = case [<<$,, Y/binary>> || [{_, Y}] <- X] of
+           [] -> <<>>;
+           [<<$,, I/binary>> | Is] -> iolist_to_binary([I | Is])
+         end,
+  <<$[, Vals/binary, $]>>.

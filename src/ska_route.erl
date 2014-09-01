@@ -55,26 +55,7 @@ parse(Req, State) ->
   {Answer, ReqN, State}.
 
 route(?MODULE, read, []) ->
-  Query =
-    "select array_to_json(array_agg(row_to_json)) as json from("
-      "select row_to_json(groups) from ("
-        "select * from objects.groups"
-      ") groups"
-      " union all select row_to_json(terminals) from("
-        "select * from terminals.data"
-        " where id in (select terminal_id from objects.data)"
-      ") terminals"
-      " union all select row_to_json(objects_models) from ("
-        "select *,'object_model' as \"type\" from objects.models"
-      ") objects_models"
-      " union all select row_to_json(objects_specializations) from ("
-        "select *,'specialization' as \"type\" from objects.specializations"
-      ") objects_specializations"
-      " union all select row_to_json(objects) from ("
-        "select * from objects.data"
-      ") objects"
-    ") S",
-  ska:sql(execute, {Query, []});
+  ska:answer({array, ska:sql(function, {ui, items, []})});
 
 route(_, update, [_]) -> true;
 route(Target, update, [IdBin | Args]) ->
