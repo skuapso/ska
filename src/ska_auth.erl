@@ -67,7 +67,7 @@ upsert_cookie(Auth, Req) ->
 
 set_cookie(Auth, Req) ->
   trace("setting cookie"),
-  Val = typextfun:to_hex(term_to_binary(erlang:now())),
+  Val = '_':to_hex(term_to_binary(erlang:now())),
   ska_session:set_cookie(Auth, Val),
   cowboy_req:set_resp_cookie(<<"skuapso-session">>, Val, [{path, "/"}], Req).
 
