@@ -31,18 +31,14 @@
     </ul>
     <div ng-controller='management'>
       <span>
-        <input datepicker-popup type='text'
-          ng-model='controls.fromDateTime'
-          data-max='{{controls.toDateTime}}'>
+        <input datepicker-popup type='text' ng-model='controls.fromDateTime'>
         <i class='glyphicon glyphicon-calendar'></i>
         &nbsp;
         <timepicker ng-model='controls.fromDateTime' class='timepicker'>
       </span>
       <i class='glyphicon glyphicon-share-alt'></i>
       <span>
-        <input datepicker-popup type='text'
-          ng-model='controls.toDateTime'
-          data-min='{{controls.fromDateTime}}'>
+        <input datepicker-popup type='text' ng-model='controls.toDateTime'>
         <i class='glyphicon glyphicon-calendar'></i>
         &nbsp;
         <timepicker ng-model='controls.toDateTime' class='timepicker'>
