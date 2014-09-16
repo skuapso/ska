@@ -27,13 +27,12 @@ parse([], Parsed) ->
   Parsed.
 
 
-read([ObjectId, <<"track">>, FromDateTime, ToDateTime | Mod]) ->
+read([ObjectId, <<"track">>, FromDateTime, ToDateTime]) ->
   TracksJson = ska:sql(function, {object, track,
                                   [
                                    binary_to_integer(ObjectId),
                                    ska:to_datetime(FromDateTime),
-                                   ska:to_datetime(ToDateTime)
-                                   | [jsxn:encode(#{})]]}),
+                                   ska:to_datetime(ToDateTime)]}),
   debug("tracks: ~w", [TracksJson]),
   ska:answer({array, TracksJson});
 
