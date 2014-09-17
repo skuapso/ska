@@ -107,25 +107,25 @@ angular.module('skuapso-map', [])
               img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', ico.link);
               img.setAttribute('transform', 'rotate(' + course + ' ' + p.x + ' ' + p.y + ')');
 
-                  L.DomUtil.addClass(img, 'leaflet-clickable');
+              L.DomUtil.addClass(img, 'leaflet-clickable');
 
-                  L.DomEvent.on(img, 'click', function(e) {
-                    L.DomEvent.stopPropagation(e);
-                    L.popup()
-                      .setLatLng([this.data.location.latitude, this.data.location.longitude])
-                      .setContent(this.data.eventtime)
-                      .openOn(map);
-                  }, p);
+              L.DomEvent.on(img, 'click', function(e) {
+                L.DomEvent.stopPropagation(e);
+                L.popup()
+                  .setLatLng([this.data.location.latitude, this.data.location.longitude])
+                  .setContent(this.data.eventtime)
+                  .openOn(map);
+              }, p);
 
-                  L.DomEvent.on(img, 'mouseover', function(e) {
-                    L.DomUtil.addClass(this, 'pointed');
-                  });
+              L.DomEvent.on(img, 'mouseover', function(e) {
+                L.DomUtil.addClass(this, 'pointed');
+              });
 
-                  L.DomEvent.on(img, 'mouseout', function(e) {
-                    L.DomUtil.removeClass(this, 'pointed');
-                  });
+              L.DomEvent.on(img, 'mouseout', function(e) {
+                L.DomUtil.removeClass(this, 'pointed');
+              });
 
-                  c.appendChild(img);
+              c.appendChild(img);
             }
           }
           return str;
