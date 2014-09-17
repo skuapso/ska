@@ -25,36 +25,36 @@
     </menu>
   </menu>
 
-  <div sk-if='loaded'>
     <ul ng-controller='menu'>
       <li ng-click='editUsers()'>Редактировать пользователей</li>
     </ul>
-    <div ng-controller='management'>
-      <span>
-        <input datepicker-popup type='text' ng-model='controls.fromDateTime'>
-        <i class='glyphicon glyphicon-calendar'></i>
-        &nbsp;
-        <timepicker ng-model='controls.fromDateTime' class='timepicker'>
-      </span>
-      <i class='glyphicon glyphicon-share-alt'></i>
-      <span>
-        <input datepicker-popup type='text' ng-model='controls.toDateTime'>
-        <i class='glyphicon glyphicon-calendar'></i>
-        &nbsp;
-        <timepicker ng-model='controls.toDateTime' class='timepicker'>
-      </span>
-      <span>
-        &nbsp;<input type='checkbox' ng-model='controls.sensor'>&nbsp;Датчик&nbsp;
-      </span>
-    </div>
-    <div class='objects-list'>
-      <br><input type='text' ng-model='itemFilter'><br>
-      <div list></div>
+    <div sk-if='loaded'>
+      <div ng-controller='management'>
+        <span>
+          <input datepicker-popup type='text' ng-model='controls.fromDateTime'>
+          <i class='glyphicon glyphicon-calendar'></i>
+          &nbsp;
+          <timepicker ng-model='controls.fromDateTime' class='timepicker'>
+        </span>
+        <i class='glyphicon glyphicon-share-alt'></i>
+        <span>
+          <input datepicker-popup type='text' ng-model='controls.toDateTime'>
+          <i class='glyphicon glyphicon-calendar'></i>
+          &nbsp;
+          <timepicker ng-model='controls.toDateTime' class='timepicker'>
+        </span>
+        <span>
+          &nbsp;<input type='checkbox' ng-model='controls.sensor'>&nbsp;Датчик&nbsp;
+        </span>
+      </div>
+      <div class='objects-list'>
+        <br><input type='text' ng-model='itemFilter'><br>
+        <div list></div>
+      </div>
     </div>
 
     <div skuapso-map>
     </div>
-  </div>
 
   <script src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
   <script src="http://maps.api.2gis.ru/1.0" type="text/javascript"></script>

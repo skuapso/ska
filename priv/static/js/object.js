@@ -19,15 +19,13 @@ angular.module('skuapso-init')
           var $url = '/object/' + this.id + '/track/'
                     + $from + '/' + $to;
           http.get($url).success(function(data) {
-            var i, line, lls = [];
+            var i, track, lls = [];
             for (i = 0; i < data.length; i++) {
-              line = L.track(data[i].track);
-              line.bindPopup(data[i].object_id + '<br>' + data[i].min + '>>' + data[i].max);
-              line.addTo(map.map);
-              lls = lls.concat(line.getLatLngs());
+              track = map.track(data[i]);
+              lls = lls.concat(track.getLatLngs());
             }
             if (lls.length > 0) {
-              map.map.fitBounds(new L.LatLngBounds(lls));
+              map.fitBounds(new L.LatLngBounds(lls));
             }
           });
         };
