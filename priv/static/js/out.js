@@ -7,11 +7,22 @@ var root = function() {return $('html').data('$scope');};
 var emptyArray = [];
 
 var contextMenuClick = function(ev) {
-  if (!root().data.get($('.context-menu-active').data())[$(this).data('action')]) {
-    console.error('no function %o', $(this).data('action'));
+  var len, i, classes = "";
+  var el = $('.context-menu-active')[0];
+  var item = root().data.get($(el).data());
+  var action = $(this).data('action');
+  if (!item || !item[action]) {
+    console.error('no function %o', action);
     return;
   }
-  root().data.get($('.context-menu-active').data())[$(this).data('action')]();
+  item[action]();
+  /*
+   * jquery not propertly removes class from SVG element
+   */
+  for (i = 0, len = el.classList.length; i < len; i++)
+    if (el.classList[i] != 'context-menu-active')
+      classes += (" " + el.classList[i]);
+  el.setAttribute('class', classes);
 };
 
 $('menu>command').on('click', contextMenuClick);

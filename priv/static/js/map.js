@@ -1,5 +1,10 @@
 'use strict';
 
+$.contextMenu({
+  selector: 'g.track',
+  items: $.contextMenu.fromMenu('menu#track')
+});
+
 angular.module('skuapso-map', [])
 .service('skuapso-map', [
     'skuapso-map-init',
@@ -138,7 +143,35 @@ angular.module('skuapso-map', [])
           }
           return target;
         },
+        addTo: function() {
+          L.Polyline.prototype.addTo.apply(this, arguments);
+          var g = this._container;
+          g.setAttribute('class', 'track');
+          $(g).data('type', 'object');
+          $(g).data('id', this.options.object);
+          this.on('contextmenu', function() {
+            g.setAttribute('class', 'track context-menu-active');
+          })
+        },
+        _fireMouseEvent: function(e) {
+          if (!this.hasEventListeners(e.type)) { return; }
 
+          var map = this._map,
+          containerPoint = map.mouseEventToContainerPoint(e),
+            layerPoint = map.containerPointToLayerPoint(containerPoint),
+            latlng = map.layerPointToLatLng(layerPoint);
+
+          this.fire(e.type, {
+            latlng: latlng,
+            layerPoint: layerPoint,
+            containerPoint: containerPoint,
+            originalEvent: e
+          });
+
+          if (e.type === 'contextmenu') {
+            L.DomEvent.preventDefault(e);
+          }
+        }
       });
       map.track = function(data, options) {
         var track = new map.Track(data.track, options);
