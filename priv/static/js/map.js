@@ -37,7 +37,6 @@ angular.module('skuapso-map', [])
             'Яндекс Траффик');
       }
       map.addControl(layersControl);
-      tmp = map;
       return map;
     }
 ])

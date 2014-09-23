@@ -26,7 +26,6 @@ parse([_ | Args], Parsed) ->
 parse([], Parsed) ->
   Parsed.
 
-
 read([ObjectId, <<"track">>, FromDateTime, ToDateTime]) ->
   TracksJson = ska:sql(function, {object, track,
                                   [

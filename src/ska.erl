@@ -98,4 +98,5 @@ answer({array, X}) ->
            [] -> <<>>;
            [<<$,, I/binary>> | Is] -> iolist_to_binary([I | Is])
          end,
-  <<$[, Vals/binary, $]>>.
+  <<$[, Vals/binary, $]>>;
+answer(X) -> X.
