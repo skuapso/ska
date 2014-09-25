@@ -50,14 +50,17 @@ angular.module('skuapso-map', [])
     function(map) {
       map.Track = L.Polyline.extend({
         initialize: function(events, options) {
-          var i, len, points, loc;
-          for (i = 0, len = events.length, points = []; i < len; i++) {
+          var i = 0,
+            len = events.length,
+            points = [];
+          var loc;
+          for (i = 0; i < len; i++) {
             loc = events[i]['location'];
             if (loc != null && loc['latitude'] != null) {
               points.push([loc['latitude'], loc['longitude'], arguments[0][i]]);
             }
           }
-          L.Polyline.prototype.initialize.call(this, points, options);
+          L.Polyline.prototype.initialize.call(this, points, {info: options});
           this._events = events;
         },
         point: {
@@ -147,8 +150,8 @@ angular.module('skuapso-map', [])
           L.Polyline.prototype.addTo.apply(this, arguments);
           var g = this._container;
           g.setAttribute('class', 'track');
-          $(g).data('type', 'object');
-          $(g).data('id', this.options.object);
+          $(g).data('type', this.options.info.type);
+          $(g).data('id', this.options.info.id);
           this.on('contextmenu', function() {
             g.setAttribute('class', 'track context-menu-active');
           })

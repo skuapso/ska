@@ -14,24 +14,89 @@ angular.module('skuapso-init')
         var o = Class.new('object', props.id, props);
 
         o.track = function() {
-          var $from = filter('date')(root.controls.fromDateTime, 'psql');
-          var $to   = filter('date')(root.controls.toDateTime, 'psql');
+          var $from = filter('date')(root.controls.fromDateTime, 'psql', 'UTC');
+          var $to   = filter('date')(root.controls.toDateTime, 'psql', 'UTC');
           var $url = '/object/' + this.id + '/track/'
                     + $from + '/' + $to;
+          var object = this;
+          if (root.controls.sensor) $url = '/static/track.json';
           http.get($url).success(function(data) {
             var i, track, lls = [];
             for (i = 0; i < data.length; i++) {
-              track = map.track(data[i]);
+              track = map.track(data[i], {
+                type: 'object',
+                id: object.id,
+                from: data.min,
+                to: data.max
+              });
               lls = lls.concat(track.getLatLngs());
             }
+            if (object.$track) object.closeTrack();
+            object.$track = track;
             if (lls.length > 0) {
               map.fitBounds(new L.LatLngBounds(lls));
             }
           });
         };
+
+        o.saveTrack = function() {
+          if (!this.$track) return;
+          var events = this.$track._events;
+          var filename = this.title
+            + " (" + this.$track.options.info.from
+            + ' ' + this.$track.options.info.to + ')';
+          var kml = new Array();
+          var lat;
+          var lon;
+          var i;
+          var len;
+
+          kml.push('<?xml version="1.0" encoding="UTF-8"?>');
+          kml.push('<kml xmlns="http://earth.google.com/kml/2.0">');
+          kml.push('<Document>')
+          kml.push('<name>Трек ' + filename + '</name>');
+          kml.push('<Placemark>');
+          kml.push('<Style id="Senior">'
+              + '<LineStyle>'
+              + '<color>FF4682B4</color>'
+              + '<width>3</width>'
+              + '</LineStyle>'
+              + '</Style>');
+
+          kml.push('<LineString>');
+          kml.push('<coordinates>');
+          for (i = 0, len = events.length; i < len; i++) {
+            lat = events[i].location.latitude;
+            lon = events[i].location.longitude;
+            kml.push(lon + ',' + lat);
+          }
+          kml.push('</coordinates>');
+          kml.push('</LineString>');
+          kml.push('</Placemark>');
+
+          kml.push('</Document>');
+          kml.push('</kml>');
+          kml = kml.join("\n");
+
+          var href =
+            'data:application/vnd.google-earth.kml+xml;'
+            + 'charset=utf-8;'
+            + 'Content-Disposition: attachment;'
+            + 'filename='
+            + filename + '.kml'
+            + ',' + encodeURIComponent(kml);
+
+          window.open(href);
+        };
+
+        o.closeTrack = function() {
+          map.removeLayer(this.$track);
+          delete this.$track;
+        };
+
         o.mileage = function() {
-          var $from = filter('date')(root.controls.fromDateTime, 'psql');
-          var $to   = filter('date')(root.controls.toDateTime, 'psql');
+          var $from = filter('date')(root.controls.fromDateTime, 'psql', 'UTC');
+          var $to   = filter('date')(root.controls.toDateTime, 'psql', 'UTC');
           var $url = '/object/' + this.id + '/mileage/'
                     + $from + '/' + $to;
           console.debug('url: %o', $url);
