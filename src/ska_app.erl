@@ -33,6 +33,7 @@ dispatch_rules() ->
           {"/bullet.js", cowboy_static, {priv_file, bullet, "bullet.js",
                                 [{mimetypes, cow_mimetypes, web}]
           }},
+          {"/ng-tpl.js", ska_ng_tpl, {priv_dir, ska, "static/tpl/skuapso"}},
           {"/static/[...]", cowboy_static, {priv_dir, ska, "static",
                                 [{mimetypes, cow_mimetypes, web}]
           }},
