@@ -16,37 +16,57 @@
         <tr>
           <td>Модель</td>
           <td>
-            <select ng-model='modal.model'
+            <input
               ng-disabled='disabled'
-              ng-options='model.title for (id,model) in data.object_models'>
-            </select>
+              ng-model='modal.model'
+              typeahead-wait-ms=250
+              typeahead-editable=false
+              typeahead-input-formatter='typeaheadTitle("model")'
+              typeahead-template-url='/static/tpl/skuapso/typeahead.title.tpl.html'
+              typeahead='i for i in data.object_models | toArray | filter:{title:$viewValue}'
+            >
           </td>
         </tr>
         <tr>
           <td>Специализация</td>
           <td>
-            <select ng-model='modal.specialization'
+            <input
               ng-disabled='disabled'
-              ng-options='specialization.title for (id,specialization) in data.specializations'>
-              <option></option>
-            </select>
+              ng-model='modal.specialization'
+              typeahead-wait-ms=250
+              typeahead-editable=false
+              typeahead-input-formatter='typeaheadTitle("specialization")'
+              typeahead-template-url='/static/tpl/skuapso/typeahead.title.tpl.html'
+              typeahead='i for i in data.specializations | toArray | filter:{title:$viewValue}'
+            >
           </td>
         </tr>
         <tr>
           <td>Группа</td>
           <td>
-            <select ng-model='modal.group'
+            <input
               ng-disabled='disabled'
-              ng-options='group.title for (id,group) in data.groups'>
-            </select>
-<!--              <input ng-model='modal.group' typeahead-wait-ms=250 typeahead-editable=false
-              typeahead='group as group.title for group in data.groups | toArray | orderBy:title | filter:{title:$viewValue} | limitTo:6'> -->
+              ng-model='modal.group'
+              typeahead-wait-ms=250
+              typeahead-editable=false
+              typeahead-input-formatter='typeaheadTitle("group")'
+              typeahead-template-url='/static/tpl/skuapso/typeahead.title.tpl.html'
+              typeahead='i for i in data.groups | toArray | filter:{title:$viewValue}'
+            >
           </td>
         </tr>
         <tr>
           <td>Навигационный терминал</td>
           <td>
-            <input ng-model='modal.terminal_id' ng-disabled='disabled'>
+            <input
+              ng-disabled='disabled'
+              ng-model='modal.terminal'
+              typeahead-wait-ms=250
+              typeahead-editable=false
+              typeahead-input-formatter='typeaheadTitle("terminal")'
+              typeahead-template-url='/static/tpl/skuapso/typeahead.title.tpl.html'
+              typeahead='i for i in data.terminals | toArray | filter:{title:$viewValue}'
+            >
           </td>
         </tr>
       </table>

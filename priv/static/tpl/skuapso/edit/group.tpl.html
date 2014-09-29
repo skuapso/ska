@@ -16,11 +16,22 @@
         <tr>
           <td>Родительская группа</td>
           <td>
-            <select ng-model='modal.parent_group'
-              ng-disabled='disabled'
-              ng-options='gr.title for (id,gr) in data.groups'>
-              <option value=''></option>
-            </select>
+            <div class="btn-group" dropdown>
+              <input
+                 ng-disabled='disabled'
+                 ng-model='modal.parent_group'
+                 typeahead-wait-ms=250
+                 typeahead-editable=false
+                 typeahead-input-formatter='typeaheadTitle("parent_group")'
+                 typeahead-template-url='/static/tpl/skuapso/typeahead.title.tpl.html'
+                 typeahead='i for i in data.groups | toArray | filter:{title:$viewValue}'
+               >
+               <button type="button" class="btn btn-danger dropdown-toggle">
+                 <span class="caret"></span>
+               </button>
+               <ul class="dropdown-menu" role="menu">
+               </ul>
+            </div>
           </td>
         </tr>
       </table>

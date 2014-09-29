@@ -182,6 +182,10 @@ angular.module('skuapso-init', [
           return diff;
         };
 
+        scope.typeaheadTitle = function(type) {
+          return this.modal[type] ? this.modal[type].title : '';
+        };
+
         modalActions = ['$scope', '$modalInstance', function(scope, modal) {
           scope.cancel = function() {
             if (on && on.cancel && angular.isFunction(on.cancel)) on.cancel(modal);
@@ -267,6 +271,5 @@ angular.module('skuapso-init', [
           return data;
         }
       };
-    }]
-)
+    }])
 ;

@@ -136,7 +136,7 @@ angular.module('skuapso-init')
             return Class.data.object_models[this.model_id];
           },
           set: function(model) {
-            this.model_id = model.id;
+            this.model_id = model ? model.id : null;
           }
         });
         Object.defineProperty(o, 'specialization', {
