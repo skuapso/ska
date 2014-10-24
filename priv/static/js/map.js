@@ -177,6 +177,10 @@ angular.module('skuapso-map', [])
         }
       });
       map.track = function(data, options) {
+        if (data.track == null) {
+          console.warning('null track');
+          return;
+        }
         var track = new map.Track(data.track, options);
         track.bindPopup(data.object_id + '<br>' + data.min + '>>' + data.max);
         track.addTo(map);

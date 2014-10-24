@@ -1,6 +1,6 @@
 'use strict';
 
-var $directive = function($type) {
+var $directive = function($type, $watch) {
 	$.contextMenu({
 		selector: 'div.context-menu.' + $type,
 		items: $.contextMenu.fromMenu('menu#' + $type)
@@ -16,12 +16,16 @@ var $directive = function($type) {
             + '" data-id="{{id}}">'
             + '{{title}}'
             + '</div>');
+      var key;
       div.on('$destroy', function() {
         $(this).data().$scope.$emit('destroed', 'id', 'title');
       });
       $element.find('>div.' + $type).remove();
       compile(div)(obj);
       $element.prepend(div);
+      for (key in $watch) {
+        obj.$watch(key, obj[$watch[key]]);
+      }
       obj.$digest();
     };
 
@@ -59,7 +63,7 @@ skuapsoModule
   scope.controls = root.controls;
 }])
 .directive('group', $directive('group'))
-.directive('object', $directive('object'))
+.directive('object', $directive('object', {'data.location': 'setLocation'}))
 .directive('skIf', ['$compile', function(compile) {
   var def = {};
 

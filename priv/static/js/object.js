@@ -14,8 +14,8 @@ angular.module('skuapso-init')
         var o = Class.new('object', props.id, props);
 
         o.track = function() {
-          var $from = filter('date')(root.controls.fromDateTime, 'psql', 'UTC');
-          var $to   = filter('date')(root.controls.toDateTime, 'psql', 'UTC');
+          var $from = filter('date')(root.controls.fromDateTime, 'psql');
+          var $to   = filter('date')(root.controls.toDateTime, 'psql');
           var $url = '/object/' + this.id + '/track/'
                     + $from + '/' + $to;
           var object = this;
@@ -92,6 +92,7 @@ angular.module('skuapso-init')
         o.closeTrack = function() {
           map.removeLayer(this.$track);
           delete this.$track;
+          return this;
         };
 
         o.mileage = function() {
@@ -99,8 +100,27 @@ angular.module('skuapso-init')
           var $to   = filter('date')(root.controls.toDateTime, 'psql', 'UTC');
           var $url = '/object/' + this.id + '/mileage/'
                     + $from + '/' + $to;
-          console.debug('url: %o', $url);
           window.open($url);
+          return this;
+        };
+
+        o.setLocation = function(loc, oldLoc, scope) {
+          if (!angular.isObject(loc)) return;
+          var ll = loc ? [loc.latitude, loc.longitude] : null,
+              marker;
+          if (ll) {
+            marker = scope._marker ? scope._marker : L.circleMarker(ll).setRadius(3).addTo(map);
+            marker.setLatLng(ll);
+            scope._marker = marker;
+          }
+          return this;
+        };
+
+        o.showOnMap = function() {
+          var loc = this.data ? this.data.location : null,
+              ll = loc ? [loc.latitude, loc.longitude] : null;
+          if (ll) map.setView(ll);
+          return this;
         };
 
         Object.defineProperty(o, 'title', {
