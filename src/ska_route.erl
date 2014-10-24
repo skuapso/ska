@@ -56,6 +56,10 @@ parse(Req, State) ->
 
 route(?MODULE, read, []) ->
   ska:answer({array, ska:sql(function, {ui, items, []})});
+route(?MODULE, read, [IdBin]) ->
+  Id = erlang:binary_to_integer(IdBin),
+  [[{osm, Json}]] = ska:sql(function, {gis, osm, [Id]}),
+  ska:answer(Json);
 
 route(_, update, [_]) -> true;
 route(Target, update, [IdBin | Args]) ->
@@ -83,6 +87,7 @@ method(<<"PUT">>)   -> create;
 method(M) -> err("unhandled method ~w", [M]), unhandled.
 
 target(<<"items">>) -> ?MODULE;
+target(<<"osm">>) -> ?MODULE;
 target(<<"object">>) -> ska_object;
 target(<<"group">>) -> ska_group;
 target(<<"terminal">>) -> ska_terminal.
