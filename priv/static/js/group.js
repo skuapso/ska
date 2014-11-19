@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skuapso-init')
-.service('skuapso-groups', ['skuapso-init-group', function() {}])
+.service('skuapso-group', ['skuapso-init-group', function() {}])
 .service('skuapso-init-group', [
     'skuapso-init',
     '$rootScope',
@@ -9,18 +9,20 @@ angular.module('skuapso-init')
       this.new = function(props) {
         var o = Class.new('group', props.id, props);
 
-        Object.defineProperty(o, 'parent', {
-          get: function() {
-            return this.parent_id ? {type: 'group', id: this.parent_id}
-            : {type: 'group', id: null};
-          }
-        });
-        Object.defineProperty(o, 'parent_group', {
-          get: function() {
-            return Class.data.groups[this.parent_id];
+        Object.defineProperties(o, {
+          'parent': {
+            get: function() {
+              return this.parent_id ? {type: 'group', id: this.parent_id}
+                : {type: 'group', id: null};
+            }
           },
-          set: function(parentGroup) {
-            this.parent_id = parentGroup ? parentGroup.id : null;
+          'parent_group': {
+            get: function() {
+              return Class.data.groups[this.parent_id];
+            },
+            set: function(parentGroup) {
+              this.parent_id = parentGroup ? parentGroup.id : null;
+            }
           }
         });
 

@@ -98,6 +98,14 @@ angular.module('skuapso-init', [
       this.create = function(props) {
         var item, parentChilds, parentChildsId;
         if (this.data.get(props)) return;
+        if (!this.data[props.type + 's']) {
+          console.warn('undefined type %s', props.type);
+          return;
+        }
+        if (!this[props.type]) {
+          console.warn('undefined type %s', props.type);
+          return;
+        }
         item = this.data[props.type + 's'][props.id] = this[props.type](props);
         bullet.send({subscribe: item.ref});
         item.$on('destroed', function() {
@@ -219,25 +227,39 @@ angular.module('skuapso-init', [
     'bullet',
     'digest',
     'skuapso-init',
-    'skuapso-objects',
-    'skuapso-groups',
-    'skuapso-objects-models',
-    'skuapso-specializations',
-    'skuapso-terminals',
+    'skuapso-object',
+    'skuapso-group',
+    'skuapso-object-model',
+    'skuapso-object-sensor',
+    'skuapso-object-tool',
+    'skuapso-specialization',
+    'skuapso-terminal',
+    'skuapso-terminal-model',
+    'skuapso-sensor',
     function(http, root, filter, bullet, digest,
-      init, objects, groups, objectsModels, spec, terminals) {
+      init, objects, groups, objectsModels, objectsSensors, objectsTools,
+      spec, terminals, terminalsModels, sensors) {
       var data = this, childs = {};
 
       root.loaded = false;
       this.objects = objects;
       this.groups = groups;
       this.object_models = objectsModels;
+      this.object_sensors = objectsSensors;
+      this.object_tools = objectsTools;
       this.specializations = spec;
       this.terminals = terminals;
+      this.terminal_models = terminalsModels;
+      this.sensors = sensors;
       init.data = this;
       init.childs = childs;
       this.get = function(obj) {
-        return obj ? this[obj.type + 's'][obj.id] : null;
+        if (obj && this[obj.type + 's']) {
+          return this[obj.type + 's'][obj.id];
+        } else {
+          console.warn("undefined type %o", obj.type);
+          return null;
+        }
       };
       this.childs = function(obj) {
         return childs[obj.type + '_' + obj.id]

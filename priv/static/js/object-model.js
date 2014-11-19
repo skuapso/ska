@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skuapso-init')
-.service('skuapso-objects-models', ['skuapso-init-object-model', function() {}])
+.service('skuapso-object-model', ['skuapso-init-object-model', function() {}])
 .service('skuapso-init-object-model', [
     'skuapso-init',
     function(Class) {

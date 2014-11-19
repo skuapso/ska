@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skuapso-init')
-.service('skuapso-objects', ['skuapso-init-object', function() {}])
+.service('skuapso-object', ['skuapso-init-object', function() {}])
 .service('skuapso-init-object', [
     'skuapso-init',
     '$rootScope',
@@ -16,10 +16,9 @@ angular.module('skuapso-init')
         o.track = function() {
           var $from = filter('date')(root.controls.fromDateTime, 'psql');
           var $to   = filter('date')(root.controls.toDateTime, 'psql');
-          var $url = '/object/' + this.id + '/track/'
+          var $url = '/object/' + this.id + '/data/'
                     + $from + '/' + $to;
           var object = this;
-          if (root.controls.sensor) $url = '/static/track.json';
           http.get($url).success(function(data) {
             var i, track, lls = [];
             for (i = 0; i < data.length; i++) {
@@ -29,12 +28,13 @@ angular.module('skuapso-init')
                 from: data.min,
                 to: data.max
               });
-              lls = lls.concat(track.getLatLngs());
+              if (track)
+                lls = lls.concat(track.getLatLngs());
             }
             if (object.$track) object.closeTrack();
             object.$track = track;
             if (lls.length > 0) {
-              map.fitBounds(new L.LatLngBounds(lls));
+              map.fitBounds(L.latLngBounds(lls));
             }
           });
         };
@@ -66,8 +66,8 @@ angular.module('skuapso-init')
           kml.push('<LineString>');
           kml.push('<coordinates>');
           for (i = 0, len = events.length; i < len; i++) {
-            lat = events[i].location.latitude;
-            lon = events[i].location.longitude;
+            lat = events[i]['1'].latitude;
+            lon = events[i]['1'].longitude;
             kml.push(lon + ',' + lat);
           }
           kml.push('</coordinates>');
@@ -98,7 +98,7 @@ angular.module('skuapso-init')
         o.mileage = function() {
           var $from = filter('date')(root.controls.fromDateTime, 'psql', 'UTC');
           var $to   = filter('date')(root.controls.toDateTime, 'psql', 'UTC');
-          var $url = '/object/' + this.id + '/mileage/'
+          var $url = '/object/' + this.id + '/summory/'
                     + $from + '/' + $to;
           window.open($url);
           return this;
@@ -117,71 +117,108 @@ angular.module('skuapso-init')
         };
 
         o.showOnMap = function() {
-          var loc = this.data ? this.data.location : null,
+          var loc = this.data ? this.data['1'] : null,
               ll = loc ? [loc.latitude, loc.longitude] : null;
           if (ll) map.setView(ll);
           return this;
         };
 
-        Object.defineProperty(o, 'title', {
-          get: function() {
-            var title = this.sortingTitle;
-            title = this.terminal ? title : '* ' + title;
-            return title;
-          }
-        });
-        Object.defineProperty(o, 'sortingTitle', {
-          get: function() {
-            var title = this.no;
-            title = this.model ? this.model.title + ' ' + title : title;
-            title = this.specialization ? this.specialization.title + ' ' + title : title;
-            return title;
-          }
-        });
-        Object.defineProperty(o, 'parent', {
-          get: function() {
-            return {type: 'group', id: this.group_id};
-          }
-        });
-        Object.defineProperty(o, 'group', {
-          get: function() {
-            return Class.data.groups[this.group_id];
+        Object.defineProperties(o, {
+          'title': {
+            enumerable: true,
+            get: function() {
+              var title = this.sortingTitle;
+              title = this.terminal ? title : '* ' + title;
+              return title;
+            }
           },
-          set: function(group) {
-            this.group_id = group ? group.id : null;
-          }
-        });
-        Object.defineProperty(o, 'model', {
-          get: function() {
-            return Class.data.object_models[this.model_id];
+          'sortingTitle': {
+            get: function() {
+              var title = this.no;
+              title = this.model ? this.model.title + ' ' + title : title;
+              title = this.specialization ? this.specialization.title + ' ' + title : title;
+              return title;
+            }
           },
-          set: function(model) {
-            this.model_id = model ? model.id : null;
-          }
-        });
-        Object.defineProperty(o, 'specialization', {
-          get: function() {
-            return Class.data.specializations[this.specialization_id];
+          'parent': {
+            get: function() {
+              return {type: 'group', id: this.group_id};
+            }
           },
-          set: function(specialization) {
-            this.specialization_id = specialization ? specialization.id : null;
-          }
-        });
-        Object.defineProperty(o, 'terminal', {
-          get: function() {
-            var obj = this;
-            if (this.terminal_id && !Class.data.terminals[this.terminal_id]) {
-              http.get('terminal/' + this.terminal_id).success(function(data) {
-                Class.create(data);
-                obj.$digest();
-              })
-            };
-            return Class.data.terminals[this.terminal_id];
+          'group': {
+            get: function() {
+              return Class.data.groups[this.group_id];
+            },
+            set: function(group) {
+              this.group_id = group ? group.id : null;
+            }
           },
-          set: function(terminal) {
-            this.terminal_id = terminal ? terminal.id : null;
+          'model': {
+            get: function() {
+              return Class.data.object_models[this.model_id];
+            },
+            set: function(model) {
+              this.model_id = model ? model.id : null;
+            }
+          },
+          'specialization': {
+            get: function() {
+              return Class.data.specializations[this.specialization_id];
+            },
+            set: function(specialization) {
+              this.specialization_id = specialization ? specialization.id : null;
+            }
+          },
+          'terminal': {
+            get: function() {
+              var obj = this;
+              if (this.terminal_id && !Class.data.terminals[this.terminal_id]) {
+                http.get('terminal/' + this.terminal_id).success(function(data) {
+                  Class.create(data);
+                  obj.$digest();
+                })
+              };
+              return Class.data.terminals[this.terminal_id];
+            },
+            set: function(terminal) {
+              this.terminal_id = terminal ? terminal.id : null;
+            }
           }
         });
+
+        o.show = {};
+        Object.defineProperties(o.show, {
+          'object': {
+            get: function() {
+              return o;
+            }
+          },
+          'Группа': {
+            enumerable: true,
+            get: function() {
+              return this.object.group.title;
+            }
+          },
+          'Модель': {
+            enumerable: true,
+            get: function() {
+              return this.object.model.title;
+            }
+          },
+          'Гос. номер': {
+            enumerable: true,
+            get: function() {
+              return this.object.no;
+            }
+          },
+          'Терминал': {
+            enumerable: true,
+            get: function() {
+              return this.object.terminal.title;
+            }
+          }
+        });
+        o.sensors = {};
 
         return o;
       };

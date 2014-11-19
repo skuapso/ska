@@ -15,7 +15,8 @@ angular.module('skuapso-map', [])
 ])
 .service('skuapso-map-init', [
     'SkuapsoMapConfig',
-    function(config) {
+    '$http',
+    function(config, http) {
       var el = config.element;
       var map = L.map(el, {center: new L.LatLng(55.75, 80.17), zoom: 7});
       var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -55,7 +56,7 @@ angular.module('skuapso-map', [])
             points = [];
           var loc;
           for (i = 0; i < len; i++) {
-            loc = events[i]['location'];
+            loc = events[i]['1'];
             if (loc != null && loc['latitude'] != null) {
               points.push([loc['latitude'], loc['longitude'], arguments[0][i]]);
             }
@@ -104,7 +105,7 @@ angular.module('skuapso-map', [])
             str += (j ? 'L' : 'M') + p.x + ' ' + p.y;
             if ((p.data) && ((map.getZoom() >= 15) || (l == null) || (l > ico.width*5))) {
               last = p;
-              var course = ico.rotate ? p['data']['location']['course'] : 0;
+              var course = ico.rotate ? p['data']['1']['course'] : 0;
               var img = L.Path.prototype._createElement('image');
               img.setAttribute('x', p.x - ico.width/2);
               img.setAttribute('y', p.y - ico.width/2);
@@ -119,7 +120,7 @@ angular.module('skuapso-map', [])
               L.DomEvent.on(img, 'click', function(e) {
                 L.DomEvent.stopPropagation(e);
                 L.popup()
-                  .setLatLng([this.data.location.latitude, this.data.location.longitude])
+                  .setLatLng([this.data['1'].latitude, this.data['1'].longitude])
                   .setContent(this.data.eventtime)
                   .openOn(map);
               }, p);
@@ -177,11 +178,11 @@ angular.module('skuapso-map', [])
         }
       });
       map.track = function(data, options) {
-        if (data.track == null) {
-          console.warning('null track');
+        if (data.data == null) {
+          console.warn('null track');
           return;
         }
-        var track = new map.Track(data.track, options);
+        var track = new map.Track(data.data, options);
         track.bindPopup(data.object_id + '<br>' + data.min + '>>' + data.max);
         track.addTo(map);
         return track;

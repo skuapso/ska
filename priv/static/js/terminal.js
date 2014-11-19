@@ -1,7 +1,7 @@
 'use sctrict';
 
 angular.module('skuapso-init')
-.service('skuapso-terminals', ['skuapso-init-terminal', function() {}])
+.service('skuapso-terminal', ['skuapso-init-terminal', function() {}])
 .service('skuapso-init-terminal', [
     'skuapso-init',
     function(Class) {
