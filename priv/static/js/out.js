@@ -3,13 +3,13 @@ var toJson = angular.toJson;
 var $a = function(el) {return angular.element($(el));};
 var $s = function() {return $a('html').scope();};
 var $i = function(el) {return $s().$item(el);};
-var root = function() {return $('html').data('$scope');};
+var _root = function() {return $('html').data('$scope');};
 var emptyArray = [];
 
 var contextMenuClick = function(ev) {
   var len, i, classes = "";
   var el = $('.context-menu-active')[0];
-  var item = root().data.get($(el).data());
+  var item = _root().data.get($(el).data());
   var action = $(this).data('action');
   if (!item || !item[action]) {
     console.error('no function %o', action);
