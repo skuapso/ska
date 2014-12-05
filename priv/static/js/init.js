@@ -254,11 +254,21 @@ angular.module('skuapso-init', [
       init.data = this;
       init.childs = childs;
       this.get = function(obj) {
-        if (obj && this[obj.type + 's']) {
-          return this[obj.type + 's'][obj.id];
+        if (!obj) return;
+        var keys = Object.keys(obj);
+        var type, id;
+        if (keys.length == 1) {
+          type = keys[0] + 's';
+          id = obj[keys[0]];
         } else {
-          console.warn("undefined type %o", obj.type);
-          return null;
+          type = obj.type + 's';
+          id = obj.id;
+        }
+        if (this[type]) {
+          return this[type][id];
+        } else {
+          console.warn("undefined type %o", obj);
+          return;
         }
       };
       this.childs = function(obj) {
