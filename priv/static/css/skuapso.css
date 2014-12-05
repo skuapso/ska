@@ -54,6 +54,8 @@ div.context-menu {
   border-style: solid;
   display: inline;
   cursor: pointer;
+  padding: 0 5px;
+  margin-left: -5px;
 }
 
 li>div[group], li>div[owner], li>div[object] {
@@ -143,4 +145,16 @@ ul.nav-tabs li {
 
 .btn-group>.btn {
   float: none;
+}
+
+li[list]>.selected {
+  background-color: cyan;
+}
+
+[sk-selected] table {
+  border: 0px solid black;
+  width: 290px;
+}
+[sk-selected] table tr.even-true{
+  background-color: #eee;
 }
