@@ -183,11 +183,11 @@ angular.module('skuapso-init')
             set: function(terminal) {
               this.terminal_id = terminal ? terminal.id : null;
             }
-          }
+          },
         });
 
-        o.show = {};
-        Object.defineProperties(o.show, {
+        o.state = {};
+        Object.defineProperties(o.state, {
           'object': {
             get: function() {
               return o;
