@@ -53,18 +53,18 @@ add_dir(PrivDir, Path, Res, MaxTime) ->
 add_files(PrivDir, Path, [File | Files], Res, MaxTime) ->
   {ok, #file_info{type = Type, mtime = Time}} = file:read_file_info(
                                                   PrivDir ++ "/" ++ Path ++ "/" ++ File),
-  case Type of
-    directory ->
-      add_dir(PrivDir, Path ++ "/" ++ File, Res, Time);
-    regular ->
-      Res1 = case list_to_binary('_':reverse(File)) of
-               <<"lmth.lpt.", _/binary>> ->
-                 add_file(PrivDir, Path, File, Res);
-               _ ->
-                 Res
-             end,
-      add_files(PrivDir, Path, Files, Res1, lists:max([MaxTime, Time]))
-  end;
+  {Res1, Time1} = case Type of
+                    directory ->
+                      add_dir(PrivDir, Path ++ "/" ++ File, Res, Time);
+                    regular ->
+                      case list_to_binary('_':reverse(File)) of
+                        <<"lmth.lpt.", _/binary>> ->
+                          {add_file(PrivDir, Path, File, Res), Time};
+                        _ ->
+                          {Res, {{1970, 1, 1}, {0, 0, 0}}}
+                      end
+                  end,
+  add_files(PrivDir, Path, Files, Res1, lists:max([MaxTime, Time1]));
 add_files(_, _, [], Res, MaxTime) ->
   {Res, MaxTime}.
 
