@@ -85,7 +85,6 @@ skuapsoModule
     set: function(ref) {
       var old = this.data.get(selected);
       selected = ref;
-      console.debug('selected %o', ref);
       if (old) old.$digest();
       if (ref) this.data.get(ref).$digest();
       this.$digest();

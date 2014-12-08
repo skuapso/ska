@@ -186,8 +186,8 @@ angular.module('skuapso-init')
           },
         });
 
-        o.state = {};
-        Object.defineProperties(o.state, {
+        var state = {};
+        Object.defineProperties(state, {
           'object': {
             get: function() {
               return o;
@@ -218,7 +218,19 @@ angular.module('skuapso-init')
             }
           }
         });
-        o.sensors = {};
+        var data = o.data ? o.data : {};
+        Object.defineProperties(o, {
+          'data': {
+            enumerable: false,
+            get: function() {return data;},
+            set: function(d) {data = d; return data;}
+          },
+          'state': {
+            enumerable: false,
+            get: function() {return state;}
+          }
+        });
+        if (!o.sensors) o.sensors = {};
 
         return o;
       };
