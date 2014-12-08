@@ -128,6 +128,14 @@ skuapsoModule
 
   return def;
 }])
+.directive('skSelected', [
+    function() {
+      var def = {};
+
+      def.templateUrl = '/static/tpl/skuapso/state.tpl.html'
+
+      return def;
+}])
 .controller('menu', ['$scope', function(scope) {
   scope.editUsers = function() {
   };
