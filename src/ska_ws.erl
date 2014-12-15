@@ -8,7 +8,7 @@
 -include_lib("logger/include/log.hrl").
 
 init(_Transport, Req, _Opts, _Active) ->
-  trace("connected"),
+  '_trace'("connected"),
   {ok, User} = ska_session:get_user(),
   ska_event:subscribe({user, User}),
   {ok, Req, undefined_state}.
@@ -16,18 +16,18 @@ init(_Transport, Req, _Opts, _Active) ->
 stream(<<"ping">>, Req, State) ->
   {ok, Req, State};
 stream(Data, Req, State) ->
-  debug("stream ~w", [ska:decode(Data)]),
+  '_debug'("stream ~w", [ska:decode(Data)]),
   [{Event, [Object]}] = ska:decode(Data),
   ska_event:Event(Object),
   {ok, Req, State}.
 
 info({event, _From, _Object, Data}, Req, State) ->
-  trace("sending event ~w", [Data]),
+  '_trace'("sending event ~w", [Data]),
   {reply, Data, Req, State};
 info(Info, Req, State) ->
-  alert("unhandled info ~w", [Info]),
+  '_alert'("unhandled '_info' ~w", [Info]),
   {ok, Req, State}.
 
 terminate(_Req, _State) ->
-  trace("disconnected"),
+  '_trace'("disconnected"),
   ok.

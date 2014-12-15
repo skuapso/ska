@@ -32,7 +32,7 @@ read([ObjectId, <<"data">>, FromDateTime, ToDateTime]) ->
                                    binary_to_integer(ObjectId),
                                    ska:to_datetime(FromDateTime),
                                    ska:to_datetime(ToDateTime)]}),
-  debug("tracks: ~w", [DataJson]),
+  '_debug'("tracks: ~w", [DataJson]),
   ska:answer({array, DataJson});
 
 read([ObjectId, <<"summory">>, FromDateTime, ToDateTime]) ->

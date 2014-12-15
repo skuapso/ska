@@ -52,7 +52,7 @@ ets() ->
 %% @doc
 %% Starts the server
 %%
-%% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
+%% @spec start_link() -> {ok, Pid} | ignore | {'_err'or, Error}
 %% @end
 %%--------------------------------------------------------------------
 start_link() ->
@@ -74,7 +74,7 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 init([]) ->
-  trace("init"),
+  '_trace'("init"),
   ets:new(?MODULE, [named_table, ordered_set, protected]),
   hooks:install(ui, 10, {?MODULE, notify}),
   hooks:install({ui, unsubscribe}, 10, {?MODULE, notify}),
@@ -96,7 +96,7 @@ init([]) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_call(_Request, _From, State) ->
-  warning("unhandled call ~w from ~w", [_Request, _From]),
+  '_warning'("unhandled call ~w from ~w", [_Request, _From]),
   {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -110,15 +110,15 @@ handle_call(_Request, _From, State) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({event, _From, Object, _Data} = Event, State) ->
-  debug("event ~w", [Event]),
+  '_debug'("event ~w", [Event]),
   Subscribed = subscribed(Object),
   lists:map(fun(Pid) ->
                 Pid ! Event
             end, Subscribed),
   {noreply, State};
 handle_cast({subscribe, Pid, Object}, State) ->
-  trace("subscribing ~w to ~w", [Pid, Object]),
-  alert("should check permissions to view ~w", [Object]),
+  '_trace'("subscribing ~w to ~w", [Pid, Object]),
+  '_alert'("should check permissions to view ~w", [Object]),
   link(Pid),
   Subscribed = subscribed(Object),
   ets:insert(?MODULE, {Object, [Pid | Subscribed]}),
@@ -131,19 +131,19 @@ handle_cast({unsubscribe, Pid, all}, State) ->
   unlink(Pid),
   {noreply, State};
 handle_cast({unsubscribe, Pid, Object}, State) when is_pid(Pid) ->
-  trace("unsubscribing ~w from ~w", [Pid, Object]),
+  '_trace'("unsubscribing ~w from ~w", [Pid, Object]),
   Subscribed = subscribed(Object),
-  debug("subscribed: ~w", [Subscribed]),
+  '_debug'("subscribed: ~w", [Subscribed]),
   ets:insert(?MODULE, {Object, lists:delete(Pid, Subscribed)}),
-  debug("new subscribed ~w", [subscribed(Object)]),
+  '_debug'("new subscribed ~w", [subscribed(Object)]),
   {noreply, State};
 handle_cast({unsubscribe, {user, User}, Object}, State) ->
-  trace("unsubscribing user ~w from ~w", [User, Object]),
+  '_trace'("unsubscribing user ~w from ~w", [User, Object]),
   Pids = lists:flatten(ets:match(?MODULE, {{user, User}, '$2'})),
   [handle_cast({unsubscribe, Pid, Object}, State) || Pid <- Pids],
   {noreply, State};
 handle_cast(_Msg, State) ->
-  warning("unhandled cast ~w", [_Msg]),
+  '_warning'("unhandled cast ~w", [_Msg]),
   {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -157,10 +157,10 @@ handle_cast(_Msg, State) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_info({'EXIT', Pid, _Reason}, State) ->
-  debug("cleaning ~w", [Pid]),
+  '_debug'("cleaning ~w", [Pid]),
   handle_cast({unsubscribe, Pid, all}, State);
 handle_info(_Info, State) ->
-  warning("unhandled info msg ~w", [_Info]),
+  '_warning'("unhandled '_info' msg ~w", [_Info]),
   {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -175,7 +175,7 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 terminate(_Reason, _State) ->
-  warning("terminating with reason ~w", [_Reason]),
+  '_warning'("terminating with reason ~w", [_Reason]),
   ok.
 
 %%--------------------------------------------------------------------
@@ -187,7 +187,7 @@ terminate(_Reason, _State) ->
 %% @end
 %%--------------------------------------------------------------------
 code_change(_OldVsn, State, _Extra) ->
-  notice("code change from ~w with extra ~w", [_OldVsn, _Extra]),
+  '_notice'("code change from ~w with extra ~w", [_OldVsn, _Extra]),
   {ok, State}.
 
 %%%===================================================================

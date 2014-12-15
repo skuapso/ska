@@ -36,7 +36,7 @@ charsets_provided(Req, State) ->
 %  {[<<"ru">>, <<"en">>], Req, State}.
 
 parse(Req, State) ->
-  debug("request is ~w", [Req]),
+  '_debug'("request is ~w", [Req]),
   [Path, MethodBin] = cowboy_req:get([path, method], Req),
   [<<>>, Target | GetArgs] = re:split(cowboy_http:urldecode(Path), "/"),
   Method = method(MethodBin),
@@ -45,12 +45,12 @@ parse(Req, State) ->
            Method =:= read -> {GetArgs, Req};
            true ->
              {ok, PostData, Req2} = cowboy_req:body(Req),
-             debug("decoding ~w", [PostData]),
+             '_debug'("decoding ~w", [PostData]),
              DecodedData = ska:decode(PostData),
-             debug("decoded ~w", [DecodedData]),
+             '_debug'("decoded ~w", [DecodedData]),
              {GetArgs ++ DecodedData, Req2}
          end,
-  debug("path is ~w", [Args]),
+  '_debug'("path is ~w", [Args]),
   Answer = route(TargetModule, Method, Args),
   {Answer, ReqN, State}.
 
@@ -66,12 +66,12 @@ route(Target, update, [IdBin | Args]) ->
   {Schema, Table} = Target:model(),
   Id = binary_to_integer(IdBin),
   ParsedArgs = Target:parse(Args),
-  debug("updating ~w: ~w", [{Schema, Table, Id}, ParsedArgs]),
+  '_debug'("updating ~w: ~w", [{Schema, Table, Id}, ParsedArgs]),
   {ok, Id} =:= ska:sql(update, {Schema, Table, {ParsedArgs, [{id, Id}]}});
 route(Target, create, Args) ->
   {Schema, Table} = Target:model(),
   ParsedArgs = Target:parse(Args),
-  debug("creating ~w: ~w", [{Schema, Table}, ParsedArgs]),
+  '_debug'("creating ~w: ~w", [{Schema, Table}, ParsedArgs]),
   case ska:sql(insert, {Schema, Table, ParsedArgs}) of
     {ok, _} -> true;
     _       -> false
@@ -84,7 +84,7 @@ method(<<"POST">>)  -> update;
 method(<<"PATCH">>) -> update;
 method(<<"HEAD">>)  -> read;
 method(<<"PUT">>)   -> create;
-method(M) -> err("unhandled method ~w", [M]), unhandled.
+method(M) -> '_err'("unhandled method ~w", [M]), unhandled.
 
 target(<<"items">>) -> ?MODULE;
 target(<<"osm">>) -> ?MODULE;

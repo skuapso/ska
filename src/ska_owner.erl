@@ -8,5 +8,5 @@
 model() -> {owners, data}.
 
 parse(Args) ->
-  alert("returning same args"),
+  '_alert'("returning same args"),
   Args.

@@ -6,8 +6,8 @@
 -include_lib("logger/include/log.hrl").
 
 execute(Req, State) ->
-  debug("req: ~w", [Req]),
-  debug("state: ~w", [State]),
+  '_debug'("req: ~w", [Req]),
+  '_debug'("state: ~w", [State]),
   Socket = element(2, Req),
   CHPid = spawn_link(?MODULE, run_cowboy_handler, [self(), Req, State]),
   gen_tcp:controlling_process(Socket, CHPid),

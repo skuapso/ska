@@ -52,7 +52,7 @@
 %% @doc
 %% Starts the server
 %%
-%% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
+%% @spec start_link() -> {ok, Pid} | ignore | {'_err'or, Error}
 %% @end
 %%--------------------------------------------------------------------
 start_link() ->
@@ -69,7 +69,7 @@ get({psql, Request}, Timeout) ->
   psql_pool:request(PoolPid, Request, Timeout).
 
 get_user() ->
-  debug("ets: ~w",[ets:match(?MODULE, '$1')]),
+  '_debug'("ets: ~w",[ets:match(?MODULE, '$1')]),
   [[{<<"basic">>, {User, _}}]] = ets:match(?MODULE, {{worker, self()}, '$1'}),
   {ok, User}.
 
@@ -98,10 +98,10 @@ ets() ->
 %% @end
 %%--------------------------------------------------------------------
 init([]) ->
-  trace("init"),
+  '_trace'("init"),
   process_flag(trap_exit, true),
   Opts = application:get_all_env(psql),
-  debug("parsing options ~w", [Opts]),
+  '_debug'("parsing options ~w", [Opts]),
   Host = proplists:get_value(host, Opts),
   Port = proplists:get_value(port, Opts),
   DB = proplists:get_value(database, Opts),
@@ -140,11 +140,11 @@ handle_call({link, ParentPid, Pid}, _From, State) when is_pid(Pid) ->
   erlang:monitor(process, Pid),
   Reply = case ets:match(?MODULE, {{worker, ParentPid}, '$1'}) of
             [[Auth]] ->
-              debug("linking ~w to ~w", [Pid, Auth]),
+              '_debug'("linking ~w to ~w", [Pid, Auth]),
               ets:insert(?MODULE, {{worker, Pid}, Auth}),
               ok;
             Else ->
-              alert("linking pid ~w to ~w: wrong ets:match ~w", [Pid, ParentPid, Else]),
+              '_alert'("linking pid ~w to ~w: wrong ets:match ~w", [Pid, ParentPid, Else]),
               failed
           end,
   {reply, Reply, State};
@@ -156,10 +156,10 @@ handle_call({link, Pid, {cookie, Cookie}}, From, State) ->
 handle_call({link, Pid, Auth}, _From, State) ->
   Reply = case lists:flatten(ets:match(?MODULE, {{pool, Auth}, '$1'})) of
             [] ->
-              trace("starting new user pool"),
+              '_trace'("starting new user pool"),
               case new_pool(Auth, State) of
                 {ok, PoolPid} ->
-                  debug("linking ~w to ~w", [Pid, Auth]),
+                  '_debug'("linking ~w to ~w", [Pid, Auth]),
                   erlang:monitor(process, Pid),
                   ets:insert(?MODULE, {{pool, Auth}, PoolPid}),
                   ets:insert(?MODULE, {{worker, Pid}, Auth}),
@@ -168,17 +168,17 @@ handle_call({link, Pid, Auth}, _From, State) ->
                   Else
               end;
             [_PoolPid] ->
-              trace("found pool"),
-              debug("linking ~w to ~w", [Pid, Auth]),
+              '_trace'("found pool"),
+              '_debug'("linking ~w to ~w", [Pid, Auth]),
               ?link(Pid),
               ets:insert(?MODULE, {{worker, Pid}, Auth}),
               ok
           end,
-  trace("reply is ~w", [Reply]),
+  '_trace'("reply is ~w", [Reply]),
   {reply, Reply, State};
 
 handle_call(_Request, _From, State) ->
-  warning("unhandled call ~w from ~w", [_Request, _From]),
+  '_warning'("unhandled call ~w from ~w", [_Request, _From]),
   {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -199,7 +199,7 @@ handle_cast({delete_cookie, Cookie}, State) ->
   [ets:delete(?MODULE, {cookie, X}) || X <- Auth],
   {noreply, State};
 handle_cast(_Msg, State) ->
-  warning("unhandled cast ~w", [_Msg]),
+  '_warning'("unhandled cast ~w", [_Msg]),
   {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -215,26 +215,26 @@ handle_cast(_Msg, State) ->
 handle_info({'DOWN', _, process, Pid, Reason}, State) ->
   handle_info({'EXIT', Pid, Reason}, State);
 handle_info({'EXIT', Pid, _}, State) ->
-  trace("died ~w", [Pid]),
+  '_trace'("died ~w", [Pid]),
   case lists:flatten(ets:match(?MODULE, {{worker, Pid}, '$1'})) of
     [_Auth | Else] = Auths ->
-      emerg(Else =/= [], "worker registered to several auths: ~w", [Auths]),
-      debug("unregistering worker ~w", [Pid]),
+      '_emerg'(Else =/= [], "worker registered to several auths: ~w", [Auths]),
+      '_debug'("unregistering worker ~w", [Pid]),
       ets:delete(?MODULE, {worker, Pid});
     [] ->
       case lists:flatten(ets:match(?MODULE, {'$1', {pool, Pid}})) of
         [] -> ok;
         [{auth, _Auth} | Rest] = Keys ->
-          emerg(Keys =/= [], "pool ~w unexpected tail ~w", [Pid, Rest]),
-          debug("unregistering pool ~w", [Pid]),
+          '_emerg'(Keys =/= [], "pool ~w unexpected tail ~w", [Pid, Rest]),
+          '_debug'("unregistering pool ~w", [Pid]),
           [ets:delete(?MODULE, X) || X <- Keys];
         Else ->
-          emerg("unexpected answer while deleting pool ~w: ~w", [Pid, Else])
+          '_emerg'("unexpected answer while deleting pool ~w: ~w", [Pid, Else])
       end
   end,
   {noreply, State};
 handle_info(_Info, State) ->
-  warning("unhandled info msg ~w", [_Info]),
+  '_warning'("unhandled '_info' msg ~w", [_Info]),
   {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -249,7 +249,7 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 terminate(_Reason, _State) ->
-  warning("terminating with reason ~w, ets: ~w", [_Reason, ets:match(?MODULE, '$1')]),
+  '_warning'("terminating with reason ~w, ets: ~w", [_Reason, ets:match(?MODULE, '$1')]),
   ok.
 
 %%--------------------------------------------------------------------
@@ -261,7 +261,7 @@ terminate(_Reason, _State) ->
 %% @end
 %%--------------------------------------------------------------------
 code_change(_OldVsn, State, _Extra) ->
-  notice("code change from ~w with extra ~w", [_OldVsn, _Extra]),
+  '_notice'("code change from ~w with extra ~w", [_OldVsn, _Extra]),
   {ok, State}.
 
 %%%===================================================================
@@ -283,10 +283,10 @@ new_pool({<<"basic">>, {UserName, Password}},
                       MaxConnections,
                       QueueSize) of
     {ok, Pid} when is_pid(Pid) ->
-      trace("new pool is ~w", [Pid]),
+      '_trace'("new pool is ~w", [Pid]),
       check_authorization(Pid, Timeout);
     Else ->
-      emerg("user psql pool not started: ~w", [Else]),
+      '_emerg'("user psql pool not started: ~w", [Else]),
       {error, Else}
   end.
 
@@ -303,7 +303,7 @@ check_authorization(Pid, Timeout) ->
             {'DOWN', Mref, process, _, timeout} ->
               {error, timeout}
           after (Timeout * 2) ->
-                  emerg("no answer for 2xTimeouts: ~w", [Timeout * 2]),
+                  '_emerg'("no answer for 2xTimeouts: ~w", [Timeout * 2]),
                   {error, timeout}
           end,
   erlang:demonitor(Mref),

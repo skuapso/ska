@@ -21,20 +21,20 @@ start() ->
 	application:start(ska).
 
 init(Type, Req, Opts) ->
-  debug("transport is ~p", [Type]),
-  debug("request is ~p", [Req]),
-  debug("options is ~p", [Opts]),
+  '_debug'("transport is ~p", [Type]),
+  '_debug'("request is ~p", [Req]),
+  '_debug'("options is ~p", [Opts]),
   {ok, Req, []}.
 
 handle(Req, State) ->
-  debug("request is ~p", [Req]),
-  debug("state is ~p", [State]),
+  '_debug'("request is ~p", [Req]),
+  '_debug'("state is ~p", [State]),
   {ok, Req, State}.
 
 terminate(Reason, Req, State) ->
-  debug("reason is ~p", [Reason]),
-  debug("request is ~p", [Req]),
-  debug("state is ~p", [State]),
+  '_debug'("reason is ~p", [Reason]),
+  '_debug'("request is ~p", [Req]),
+  '_debug'("state is ~p", [State]),
   ok.
 
 to_atom(<<"badarg">>) -> {ok, badarg};
@@ -85,7 +85,7 @@ decode(Data) ->
   decode(Data, Opts).
 
 decode(Data, Opts) when Opts =/= [safe] ->
-  alert("should be safe"),
+  '_alert'("should be safe"),
   decode1(binary_to_term('_':from_hex(Data), Opts));
 decode(Data, Opts) ->
   decode1(binary_to_term('_':from_hex(Data), Opts)).
