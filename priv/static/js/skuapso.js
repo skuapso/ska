@@ -4,7 +4,12 @@ var $directive = function($type, $w) {
   var $watch = $w || {};
 	$.contextMenu({
 		selector: 'div.context-menu.' + $type,
-		items: $.contextMenu.fromMenu('menu#' + $type)
+		items: $.contextMenu.fromMenu('menu#' + $type),
+    events: {
+      show: function() {
+        _root().data.get(this.data()).selected = true;
+      }
+    }
 	});
   return ['skuapso-data', '$compile', '$rootScope', function(data, compile, root) {
     var def = {};
