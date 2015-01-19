@@ -6,6 +6,7 @@
     "leaflet": "latest",
     "leaflet-plugins": "latest",
     "leaflet-2gis": "emikhalev/leaflet-2gis",
+    "leaflet.freedraw": "latest",
     "angular-bootstrap": "=0.10.0",
     "jQuery-contextMenu": "latest",
     "bert.js": "latest"
