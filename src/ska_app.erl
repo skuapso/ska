@@ -24,19 +24,24 @@ stop(_State) ->
 dispatch_rules() ->
   cowboy_router:compile(
     [{'_', [
-          {"/", cowboy_static, {priv_file, ska, "static/index.html",
-                                [{mimetypes, cow_mimetypes, web}]
-          }},
-          {"/favicon.ico", cowboy_static, {priv_file, ska, "static/favicon.ico",
-                                [{mimetypes, cow_mimetypes, web}]
-          }},
-          {"/bullet.js", cowboy_static, {priv_file, bullet, "bullet.js",
-                                [{mimetypes, cow_mimetypes, web}]
-          }},
-          {"/ng-tpl.js", ska_ng_tpl, {priv_dir, ska, "static/tpl/skuapso"}},
-          {"/static/[...]", cowboy_static, {priv_dir, ska, "static",
-                                [{mimetypes, cow_mimetypes, web}]
-          }},
-          {<<"/ws/[...]">>, bullet_handler, [{handler, ska_ws}]},
-          {'_', ska_route, []}
-          ]}]).
+            {"/", cowboy_static, {priv_file, ska, "static/index.html",
+                                  [{mimetypes, cow_mimetypes, web}]
+                                 }},
+            {"/favicon.ico", cowboy_static, {priv_file, ska, "static/favicon.ico",
+                                             [{mimetypes, cow_mimetypes, web}]
+                                            }},
+            {"/bullet.js", cowboy_static, {priv_file, bullet, "bullet.js",
+                                           [{mimetypes, cow_mimetypes, web}]
+                                          }},
+            {"/skuapso.js", ska_union, [{priv_dir, ska, "static/js"},
+                                        {suffix, ".js"},
+                                        {depth, 0}]},
+            {"/ng-tpl.js", ska_union, [{priv_dir, ska, "static/tpl/skuapso"},
+                                       {suffix, ".tpl.html"},
+                                       {preadd, {ska_ng_tpl, to_js}}]},
+            {"/static/[...]", cowboy_static, {priv_dir, ska, "static",
+                                              [{mimetypes, cow_mimetypes, web}]
+                                             }},
+            {<<"/ws/[...]">>, bullet_handler, [{handler, ska_ws}]},
+            {'_', ska_route, []}
+           ]}]).
