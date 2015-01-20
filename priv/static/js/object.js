@@ -223,7 +223,7 @@ angular.module('skuapso-init')
           'data': {
             enumerable: false,
             get: function() {return data;},
-            set: function(d) {data = d; return data;}
+            set: function(d) {angular.extend(data, d); return data;}
           },
           'state': {
             enumerable: false,
