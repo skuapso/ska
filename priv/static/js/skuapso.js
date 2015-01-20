@@ -7,7 +7,7 @@ var $directive = function($type, $w) {
 		items: $.contextMenu.fromMenu('menu#' + $type),
     events: {
       show: function() {
-        _root().data.get(this.data()).selected = true;
+        _root.data.get(this.data()).selected = true;
       }
     }
 	});
@@ -75,8 +75,14 @@ var skuapsoModule = angular.module('skuapso',
     ]);
 
 skuapsoModule
-.run(['$rootScope', 'skuapso-data', function(root, data) {
+.run([
+    '$rootScope',
+    'skuapso-data',
+    'skuapso-map',
+    function(root, data, map) {
   var selected = null;
+  _root = root;
+  root.map = map;
   root.data = data;
   root.controls = {};
   root.controls.toDateTime = new Date();
