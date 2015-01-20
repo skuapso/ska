@@ -236,9 +236,10 @@ angular.module('skuapso-init', [
     'skuapso-terminal',
     'skuapso-terminal-model',
     'skuapso-sensor',
+    'skuapso-geo',
     function(http, root, filter, bullet, digest,
       init, objects, groups, objectsModels, objectsSensors, objectsTools,
-      spec, terminals, terminalsModels, sensors) {
+      spec, terminals, terminalsModels, sensors, geo) {
       var data = this, childs = {};
 
       root.loaded = false;
@@ -251,6 +252,7 @@ angular.module('skuapso-init', [
       this.terminals = terminals;
       this.terminal_models = terminalsModels;
       this.sensors = sensors;
+      this.geos = geo;
       init.data = this;
       init.childs = childs;
       this.get = function(obj) {
