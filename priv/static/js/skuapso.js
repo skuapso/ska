@@ -11,28 +11,15 @@ var $directive = function($type, $w) {
       }
     }
 	});
-  return ['skuapso-data', '$compile', '$rootScope', function(data, compile, root) {
+  return ['skuapso-data', '$compile', '$rootScope', '$templateCache',
+  function(data, compile, root, templates) {
     var def = {};
 
     console.warn('надо как-то автоматизировать получение наблюдаемых частей');
     def.link = function($scope, $element, $attrs) {
       var obj = data.get({type: $type, id: $attrs[$type]});
-      var div = $('<div class="context-menu ' + $type
-            + '" data-type="' + $type
-            + '" data-id="{{id}}"'
-            + 'ng-click="selected=1"'
-            + '>'
-            + '{{title}}'
-            + '</div>');
+      var div = $(templates.get('/static/tpl/skuapso/list-item.tpl.html'));
       var key;
-
-      div.on('$destroy', function() {
-        $(this).data().$scope.$emit('destroed', 'id', 'title');
-      });
-
-      $element.find('>div.' + $type).remove();
-      compile(div)(obj);
-      $element.prepend(div);
 
       Object.defineProperties(obj, {
         'selected': {
@@ -53,8 +40,18 @@ var $directive = function($type, $w) {
           div.removeClass('selected');
         }
       };
-      $watch.selected = 'listSelected';
 
+      div.on('$destroy', function() {
+        $(this).data().$scope.$emit('destroed', 'id', 'title');
+      });
+      $element.find('>div.' + $type).remove();
+      if (obj.selected) {
+        div.addClass('selected');
+      }
+      compile(div)(obj);
+      $element.prepend(div);
+
+      $watch.selected = 'listSelected';
       for (key in $watch) {
         obj.$watch(key, obj[$watch[key]]);
       }
@@ -65,12 +62,15 @@ var $directive = function($type, $w) {
   }]
 };
 
+angular.module('skuapso-cache', []);
+
 var skuapsoModule = angular.module('skuapso',
     [
     'ui.bootstrap',
     'skuapso-init',
     'skuapso-tree',
     'skuapso-map',
+    'skuapso-cache',
     'skuapso.test'
     ]);
 
@@ -140,10 +140,12 @@ skuapsoModule
   return def;
 }])
 .directive('skSelected', [
-    function() {
+    '$compile',
+    'skuapso-data',
+    function(compile, data) {
       var def = {};
 
-      def.templateUrl = '/static/tpl/skuapso/state.tpl.html'
+      def.templateUrl = '/static/tpl/skuapso/state.tpl.html';
 
       return def;
 }])

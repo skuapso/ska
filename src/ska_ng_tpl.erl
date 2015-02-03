@@ -4,7 +4,7 @@
 
 to_js(Path, Html) ->
   [_PrivDir | PathWithoutPrivDir] = lists:reverse(Path),
-  JS = iolist_to_binary(["angular.module('skuapso').run(['$templateCache', function(cache) {",
+  JS = iolist_to_binary(["angular.module('skuapso-cache').run(['$templateCache', function(cache) {",
                          "cache.put('/", '_':join(PathWithoutPrivDir, "/"), "', \""]),
   Html1 = iolist_to_binary(re:replace(Html, "\"", "\\\\\"", [global])),
   Html2 = case iolist_to_binary(re:replace(Html1, "(.*)\n", " \\1", [global])) of
