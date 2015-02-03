@@ -57,19 +57,18 @@ angular.module('isolated-scope', [])
 }])
 .service('watcherExp', [function() {
   return function watcherExp(watcher) {
+    var exp = [], i, l;
     if (!watcher.exp) throw('watcherExp: no exp');
     if (!angular.isFunction(watcher.exp)) {
       if (watcher.parts) {
-        if (watcher.parts[1]) {
-          throw ('watcherExp: to many parts');
-        } else {
-          return watcher.parts[0].exp;
+        for (i = 0, l = watcher.parts.length; i < l; i++) {
+          if (watcher.parts[i].exp) exp.push(watcher.parts[i].exp);
         }
       } else {
-        return watcher.exp;
+        exp.push(watcher.exp);
       }
     }
-    return watcherExp(watcher.exp);
+    return exp;
   }
 }])
 ;

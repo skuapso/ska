@@ -119,7 +119,7 @@ angular.module('skuapso-init', [
           for (i; i < l; i++) {
             keep = true;
             angular.forEach(arguments, function(exp) {
-              if (watcherExp(watchers[i]) == exp) {
+              if (watcherExp(watchers[i]).indexOf(exp) > -1) {
                 keep = false;
               }
             });
