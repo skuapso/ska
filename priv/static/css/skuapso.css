@@ -89,10 +89,6 @@ input.timepicker {
   padding: 1px;
 }
 
-.leaflet-top {
-  z-index: 100;
-}
-
 .nav-tabs {
   margin-bottom: 16px;
 }
