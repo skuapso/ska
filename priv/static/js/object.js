@@ -214,10 +214,36 @@ angular.module('skuapso-init')
           'Терминал': {
             enumerable: true,
             get: function() {
-              return this.object.terminal.title;
+              return this.object.terminal ? this.object.terminal.title : '';
+            }
+          },
+          'Последнее событие': {
+            enumerable: true,
+            get: function() {
+              return this.object.data.eventtime ? filter('date')(new Date(this.object.data.eventtime), 'medium') : null;
             }
           }
         });
+
+        var sensors = o.sensors || [];
+        var get_sensor = function(index) {
+          return function() {
+            return this.object.data ? this.object.data[sensors[index].provides] : null;
+          }
+        };
+        var get_places = function() {
+          return this.object.data['1'] ? this.object.data['1'].places : null;
+        };
+
+        for (i = 0, l = sensors.length; i < l; i++) {
+          tool = Class.data.object_tools[sensors[i].provides];
+          var get_value = (sensors[i].id == -1) ? get_places : get_sensor(i);
+          Object.defineProperty(state, tool.title, {
+            enumerable: true,
+            get: get_value
+          });
+        }
+
         var data = o.data ? o.data : {};
         Object.defineProperties(o, {
           'data': {
@@ -230,7 +256,6 @@ angular.module('skuapso-init')
             get: function() {return state;}
           }
         });
-        if (!o.sensors) o.sensors = {};
 
         return o;
       };
