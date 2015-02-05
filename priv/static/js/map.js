@@ -5,10 +5,13 @@ $.contextMenu({
   items: $.contextMenu.fromMenu('menu#track')
 });
 
-angular.module('skuapso-map', [])
+var skuapsoMap = angular.module('skuapso-map', []);
+
+skuapsoMap
 .service('skuapso-map', [
     'skuapso-map-init',
     'skuapso-map-track',
+    'skuapso-map-svg-marker',
     function(map) {
       return map;
     }
@@ -46,9 +49,64 @@ angular.module('skuapso-map', [])
       return map;
     }
 ])
+.service('skuapso-map-svg-marker', [
+    '$templateCache',
+    '$interpolate',
+    'skuapso-map-init',
+    function(templates, compile, map) {
+      map.SvgMarker = L.Path.extend({
+        initialize: function(latlng, options) {
+          L.Path.prototype.initialize.call(this, options);
+
+          this._latlng = latlng;
+        },
+
+        projectLatlngs: function() {
+          this.p = this._map.latLngToLayerPoint(this._latlng);
+        },
+
+        getAttributes: function() {
+          var d = this.options.d;
+          var rotate = 'rotate(' + this.options.rotate + ')';
+          var translate = 'translate(' + this.p.x + ' ' + this.p.y + ')';
+          return {
+            d: d,
+            transform: translate + ' ' + rotate
+          }
+        },
+
+        setLatLng: function(ll) {
+          this._latlng = ll;
+          this.projectLatlngs();
+          this._updatePath();
+        },
+
+        _updatePath: function() {
+          var attrs = map.SvgMarker.prototype.getAttributes.call(this);
+          var i = 0,
+              keys = Object.keys(attrs),
+              l = keys.length,
+              el = this._path;
+          for (i; i < l; i++) {
+            el.setAttribute(keys[i], attrs[keys[i]]);
+          }
+        }
+
+      });
+
+      map.svgMarker = function(latlng, options) {
+        return new map.SvgMarker(latlng, options);
+      };
+
+      return map;
+    }
+])
 .service('skuapso-map-track', [
     'skuapso-map-init',
-    function(map) {
+    'skuapso-map-svg-marker',
+    'skuapso-map-track-point',
+    'skuapso-map-track-pointer',
+    function(map, svgMarker, point, pointer) {
       map.Track = L.Polyline.extend({
         initialize: function(events, options) {
           var i = 0,
@@ -64,16 +122,6 @@ angular.module('skuapso-map', [])
           L.Polyline.prototype.initialize.call(this, points, {info: options});
           this._events = events;
         },
-        point: {
-          rotate: false,
-          width: 7,
-          link: '/static/img/p.png'
-        },
-        pointer: {
-          rotate: true,
-          width: 10,
-          link: '/static/img/l.png'
-        },
         projectLatlngs: function () {
           this._originalPoints = [];
 
@@ -84,7 +132,7 @@ angular.module('skuapso-map', [])
         },
         getPathString: function() {
           var c = this._container;
-          $(c).find('image').remove();
+          $(c).find('.track.point').remove();
           for (var i = 0, len = this._parts.length, str = ''; i < len; i++) {
             str += this._getPathPartStr(this._parts[i]);
           }
@@ -92,9 +140,9 @@ angular.module('skuapso-map', [])
         },
         _getPathPartStr: function (points) {
           var round = L.Path.VML;
-          var ico = (this._map.getZoom() < 15) ? this.point : this.pointer;
+          var ico = angular.extend({},
+              (this._map.getZoom() < 15) ? point : pointer);
           var c = this._container;
-          var map = this._map;
 
           for (var j = 0, len2 = points.length, str = '', p, last = null, l; j < len2; j++) {
             p = points[j];
@@ -103,19 +151,23 @@ angular.module('skuapso-map', [])
             }
             l = last == null ? null : Math.sqrt(Math.pow(p.x - last.x, 2) + Math.pow(p.y - last.y, 2));
             str += (j ? 'L' : 'M') + p.x + ' ' + p.y;
-            if ((p.data) && ((map.getZoom() >= 15) || (l == null) || (l > ico.width*5))) {
+            if ((p.data) && ((map.getZoom() >= 15)
+                          || (l == null)
+                          || (l > ico.size*5))
+                          ||(j == (len2 - 1))
+            ) {
+              console.debug('ico: %o', ico);
               last = p;
-              var course = ico.rotate ? p['data']['1']['course'] : 0;
-              var img = L.Path.prototype._createElement('image');
-              img.setAttribute('x', p.x - ico.width/2);
-              img.setAttribute('y', p.y - ico.width/2);
-              img.setAttribute('width', ico.width);
-              img.setAttribute('height', ico.width);
-              img.setAttribute('class', 'track point');
-              img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', ico.link);
-              img.setAttribute('transform', 'rotate(' + course + ' ' + p.x + ' ' + p.y + ')');
-
+              var img = L.Path.prototype._createElement('path');
+              img.p = p;
+              img.options = {
+                rotate: p['data'] ? p['data']['1'] ? p['data']['1']['course'] : 0 : 0,
+                d: ico.d
+              };
+              img._path = img;
+              map.SvgMarker.prototype._updatePath.call(img);
               L.DomUtil.addClass(img, 'leaflet-clickable');
+              L.DomUtil.addClass(img, ico.className);
 
               L.DomEvent.on(img, 'click', function(e) {
                 L.DomEvent.stopPropagation(e);
@@ -197,4 +249,64 @@ angular.module('skuapso-map', [])
 .config(['SkuapsoMapConfig', function(config) {
   config.element = $('div[skuapso-map]')[0];
 }])
+.config(['SkuapsoMapConfig', function(config) {
+  config.track = {
+    point: {
+      url: 'track-point',
+      classes: 'track point',
+      size: 10
+    },
+    pointer: {
+      url: 'track-pointer',
+      classes: 'track point',
+      size: 15
+    }
+  };
+  config.object = {
+    point: {
+      url: 'track-point',
+      classes: 'object',
+      size: 20
+    },
+    pointer: {
+      url: 'track-pointer',
+      classes: 'object',
+      size: 20
+    }
+  };
+}])
 ;
+
+function svgMarkerOpts(o) {
+  return [
+    'SkuapsoMapConfig',
+    '$templateCache',
+    '$interpolate',
+    function(config, templates, compile) {
+      var get_opts = function(obj, path) {
+        var k, i = 1, l = path.length, nPath = [];
+        if (l == 0)
+          return obj;
+        for (i; i < l; i++)
+          nPath.push(path[i]);
+        return get_opts(obj[path[0]], nPath);
+      };
+      var path = '/static/tpl/skuapso/svg/' + o.join('-') + '.svg.tpl.html';
+      var opts = get_opts(config, o);
+      var d = compile(templates.get(path))(opts);
+      return {
+        d: d,
+        className: opts.classes,
+        size: opts.size,
+        rotate: 0
+      }
+    }
+  ];
+}
+
+angular.forEach(
+  [['track', 'point'], ['track', 'pointer'], ['object', 'point'], ['object', 'pointer']],
+  function(k) {
+    skuapsoMap.service('skuapso-map-' + k.join('-'), svgMarkerOpts(k))
+  }
+);

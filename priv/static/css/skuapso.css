@@ -151,6 +151,13 @@ li[list]>.selected {
   border: 0px solid black;
   width: 290px;
 }
-[sk-selected] table tr.even-true{
+
+[sk-selected] table tr.even-true {
   background-color: #eee;
+}
+
+g .object, .track.point {
+  stroke-width: 1;
+  stroke: #070;
+  fill: #3c2;
 }

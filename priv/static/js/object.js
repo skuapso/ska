@@ -9,8 +9,12 @@ angular.module('skuapso-init')
     '$filter',
     'skuapso-http',
     'skuapso-map',
-    function(Class, root, modal, filter, http, map) {
+    'skuapso-map-svg-marker',
+    'skuapso-map-object-point',
+    'skuapso-map-object-pointer',
+    function(Class, root, modal, filter, http, map, svgMarker, point, pointer) {
       this.new = function(props) {
+        var i, l, tool;
         var o = Class.new('object', props.id, props);
 
         o.track = function() {
@@ -109,9 +113,9 @@ angular.module('skuapso-init')
           var ll = loc ? [loc.latitude, loc.longitude] : null,
               marker;
           if (ll) {
-            marker = scope._marker ? scope._marker : L.circleMarker(ll).setRadius(3).addTo(map);
-            marker.setLatLng(ll);
-            scope._marker = marker;
+            scope._marker = scope._marker ? scope._marker : map.svgMarker(ll, pointer).addTo(map);
+            scope._marker.options.rotate = loc.course;
+            scope._marker.setLatLng(ll);
           }
           return this;
         };
