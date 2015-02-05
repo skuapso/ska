@@ -206,6 +206,10 @@ angular.module('skuapso-init', [
               .success(function(data) {
                 if (on && on.success && angular.isFunction(on.success)) on.success(data, modal);
                 scope.disabled = false;
+              })
+              .error(function(data) {
+                if (on && on.error && angular.isFunction(on.error)) on.error(data, modal);
+                scope.disable = false;
               });
           };
         }];
