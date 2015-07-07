@@ -38,7 +38,7 @@ charsets_provided(Req, State) ->
 parse(Req, State) ->
   '_debug'("request is ~w", [Req]),
   [Path, MethodBin] = cowboy_req:get([path, method], Req),
-  [<<>>, Target | GetArgs] = re:split(cowboy_http:urldecode(Path), "/"),
+  [<<>>, Target | GetArgs] = re:split(cow_qs:urldecode(Path), "/"),
   Method = method(MethodBin),
   TargetModule = target(Target),
   {Args, ReqN} = if

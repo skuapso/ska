@@ -25,7 +25,7 @@ info({event, _From, _Object, Data}, Req, State) ->
   '_trace'("sending event ~w", [Data]),
   {reply, Data, Req, State};
 info(Info, Req, State) ->
-  '_alert'("unhandled '_info' ~w", [Info]),
+  '_alert'("unhandled info ~w", [Info]),
   {ok, Req, State}.
 
 terminate(_Req, _State) ->

@@ -33,10 +33,47 @@ dispatch_rules() ->
             {"/bullet.js", cowboy_static, {priv_file, bullet, "bullet.js",
                                            [{mimetypes, cow_mimetypes, web}]
                                           }},
-            {"/skuapso.js", ska_union, [{priv_dir, ska, "static/js"},
-                                        {suffix, ".js"},
-                                        {depth, 0}]},
-            {"/ng-tpl.js", ska_union, [{priv_dir, ska, "static/tpl/skuapso"},
+            {"/libs.js", whiskey_cola, [{priv_files, ska, "static/js/lib",
+                                         [
+                                          "evispa-timo-jsclipper/clipper.js",
+                                          "concavehull/dist/concavehull.js",
+                                          "jquery/dist/jquery.js",
+                                          "jQuery-contextMenu/src/jquery.contextMenu.js",
+                                          "jQuery-contextMenu/src/jquery.ui.position.js",
+                                          "angular/angular.js",
+                                          "angular-bootstrap/ui-bootstrap-tpls.js",
+                                          "bert.js/bert.js",
+                                          "leaflet/dist/leaflet-src.js",
+                                          "leaflet-plugins/layer/tile/Google.js",
+                                          "leaflet-plugins/layer/tile/Yandex.js",
+                                          "leaflet-2gis/dgis.js",
+                                          "leaflet.freedraw/dist/leaflet.freedraw-src.js"
+                                         ]}]},
+            {"/skuapso.js", whiskey_cola, [{priv_files, ska, "static/js",
+                                            [
+                                             "out.js"
+                                             ,"isolated-scope.js"
+                                             ,"skuapso.js"
+                                             ,"init.js"
+                                             ,"http.js"
+                                             ,"bullet.js"
+                                             ,"tree.js"
+                                             ,"map.js"
+                                             ,"test.js"
+                                             ,"object.js"
+                                             ,"group.js"
+                                             ,"object-model.js"
+                                             ,"object-sensor.js"
+                                             ,"tool.js"
+                                             ,"specialization.js"
+                                             ,"terminal.js"
+                                             ,"terminal-model.js"
+                                             ,"sensor.js"
+                                             ,"geo.js"
+                                             ,"locale.js"
+                                            ]}
+                                          ]},
+            {"/ng-tpl.js", whiskey_cola, [{priv_dir, ska, "static/tpl/skuapso"},
                                        {suffix, ".tpl.html"},
                                        {preadd, {ska_ng_tpl, to_js}}]},
             {"/static/[...]", cowboy_static, {priv_dir, ska, "static",
