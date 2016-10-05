@@ -9,9 +9,10 @@
 %% Application callbacks
 %% ===================================================================
 
-start(_StartType, _StartArgs) ->
+start(_StartType, StartArgs) ->
+  Port = misc:get_env(ska, port, StartArgs),
   {ok, _} = cowboy:start_http(http, 1,
-                              [{port, 8000}],
+                              [{port, Port}],
                               [
         {env, [{dispatch, dispatch_rules()}]},
         {middlewares, [cowboy_router, ska_auth, ska_handler]}

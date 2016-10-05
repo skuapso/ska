@@ -9,6 +9,7 @@
                  ]},
   {mod, { ska_app, []}},
   {env, [
+    {port, 8000},
     {session, [
       {host, "localhost"},
       {port, 5432},
